@@ -1,7 +1,7 @@
 // src/Room.jsx
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { WebSocketContext } from './WebSocketContext';
+import { WebSocketContext } from './WebSocketContext.jsx';
 
 function Room() {
   const { roomId } = useParams();
@@ -29,8 +29,6 @@ function Room() {
         console.error('Invalid JSON:', err);
       }
     };
-
-    socket.addEventListener('message', handleMessage);
 
     // Cleanup listener on unmount
     return () => {
