@@ -12,34 +12,17 @@ require('dotenv').config();
 const db = require("./db/connection")
 const User = require("./models/user")
 
-app.get('/', (req, res) => {
-  res.send('Server is running!');
-});
-
-
-const redis = require('redis');
-const client = redis.createClient({
-  password: process.env.REDIS_PASSWORD,
-  socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT
-  }
-});
-client.on('error', (err) => {
-  console.log('Redis error: ' + err);
-});
-
 const WebSocket = require('ws');
+const { hash } = require('crypto');
+
 const server = app.listen(port, () => {
-  client.connect().then(() => {
-    console.log(`Connected to Redis`);
-  });
   db.connectToServer((err) => {
     if (err) console.log(err);
     else console.log(`Connected to MongoDB`);
   });
   console.log(`Server listening at http://localhost:${port}`);
 });
+
 const wss = new WebSocket.Server({ server });
 
 wss.on('error', (err) => {
@@ -67,6 +50,15 @@ const updateELO = (winner, loser) => {
   winner.wins++;
   loser.losses++;
 };
+
+const hashStringToInt = (str) => {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    return Math.abs(hash) % 10;
+}
+
 
 // {
 //   roomId: {
@@ -108,8 +100,6 @@ wss.on('connection', (ws) => {
 
     const msg = JSON.parse(message);
 
-    console.log("Message received:", msg);
-
     if (msg.status === 'create-room') {
       const roomId = generateCode();
       rooms.set(roomId, {
@@ -146,40 +136,14 @@ wss.on('connection', (ws) => {
       }, 7200000);
     }
 
-    if (msg.status === 'game-end') {
-      const roomId = msg.roomId;
-      rooms.get(roomId).finished = true;
-
-      let winner = null;
-      let loser = null;
-
-      if (msg.result === 'win') {
-        winner = rooms.get(roomId).members[0];
-        loser = rooms.get(roomId).members[1];
-      } else if (msg.result === 'lose') {
-        winner = rooms.get(roomId).members[1];
-        loser = rooms.get(roomId).members[0];
-      }
-
-      updateELO(winner, loser);
-
-      try {
-        User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
-        User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
-      } catch (err) {
-        console.log(err);
-      }
-
-      winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
-      loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
-    }
-
     if (msg.status === 'code-submission') {
       const roomId = msg.roomId;
       const player = rooms.get(roomId).members.find((p) => p.ws === ws);
 
       const code = msg.code;
-      const command = `python script.py ${code}`;
+      const problemId = hashStringToInt(roomId);
+
+      const command = `python judge/judge.py ${problemId} ${code}`;
 
       exec(command, (error, stdout, stderr) => {
         if (error) {
@@ -238,4 +202,8 @@ wss.on('connection', (ws) => {
       }
     });
   });
+});
+
+app.get('/', (req, res) => {
+  res.send('Server is running!');
 });

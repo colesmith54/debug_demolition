@@ -1,4 +1,13 @@
 {
+  "name": "debugbattle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "csv-parser": "^3.1.0",
