@@ -169,7 +169,9 @@ wss.on('connection', (ws) => {
       const player = rooms.get(roomId).members.find((p) => p.ws === ws);
 
       const code = msg.code;
-      const command = `python script.py ${code}`;
+      const problemId = hashStringToInt(roomId);
+
+      const command = `python judge/judge.py ${problemId} ${code}`;
 
       exec(command, (error, stdout, stderr) => {
         if (error) {
