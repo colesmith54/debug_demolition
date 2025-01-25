@@ -19,6 +19,6 @@ module.exports = {
   },
 
   getDb: function() {
-    return client.db('test');
+    return client.db('debugbattle');
   }
 }
