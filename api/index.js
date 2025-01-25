@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const express = require('express');
 const app = express();
 app.use(express.json());
-const port = process.env.PORT || 7001;
+const port = process.env.PORT || 5000;
 const fs = require('fs');
 const csv = require('csv-parser');
 const jwt = require('jsonwebtoken');
@@ -24,12 +24,6 @@ const server = app.listen(port, () => {
 });
 
 const wss = new WebSocket.Server({ server });
-wss.on('connection', (ws) => {
-  console.log('WebSocket connected');
-  ws.on('message', (message) => {
-    console.log(`Received: ${message}`);
-  });
-});
 
 wss.on('error', (err) => {
   console.error('WebSocket error:', err);
@@ -85,9 +79,26 @@ class Player {
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
+
   ws.on('message', (message) => {
+    console.log(`Raw message received: ${message}`);
+
+    let parsedMessage;
+    try {
+      parsedMessage = JSON.parse(message);
+    } catch (error) {
+      console.error('Failed to parse message:', error);
+      ws.send('Error: Invalid message format');
+      return;
+    }
+
+    if (parsedMessage.status === 'test-message' && parsedMessage.content === 'hello') {
+      ws.send('Received. Hello!'); // Respond to the client
+    } else {
+      ws.send('Message received: ' + message); // Default response for other messages
+    }
+
     const msg = JSON.parse(message);
-    console.log(msg);
 
     if (msg.status === 'create-room') {
       const roomId = generateCode();

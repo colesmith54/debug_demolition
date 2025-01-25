@@ -3,14 +3,10 @@ import { useRef, useEffect } from 'react';
 
 // Adjust these URLs as needed
 const ENVIRONMENT = 'development';
-const DEV_WEBSOCKET_URL = 'ws://localhost:3000';
+const DEV_WEBSOCKET_URL = 'ws://localhost:5000';
 const PROD_WEBSOCKET_URL = 'wss://leet-battle.fly.dev';
 const WEBSOCKET_URL = ENVIRONMENT === 'development' ? DEV_WEBSOCKET_URL : PROD_WEBSOCKET_URL;
 
-/**
- * Helper to retrieve a "profile" object from localStorage.
- * Adjust to match your actual stored data shape.
- */
 function getProfileFromStorage() {
   try {
     const stored = localStorage.getItem('profile');
@@ -20,9 +16,6 @@ function getProfileFromStorage() {
   }
 }
 
-/**
- * Create a web notification (if permissions allow).
- */
 function notify(title, message) {
   if (!('Notification' in window)) {
     console.log('Browser does not support Notifications');
@@ -92,7 +85,6 @@ export default function useWebSocket() {
         roomIDRef.current = response.roomID;
         if (response.displayCode) {
           console.log('Received return-code:', response.roomID);
-          // You might store or display this code somewhere
         }
       }
 
@@ -164,10 +156,7 @@ export default function useWebSocket() {
     shuffleStatusRef.current = null;
   }
 
-  /**
-   * Periodically sends a keepalive message.
-   * Adjust the interval as needed.
-   */
+
   function keepAlive() {
     keepAliveRef.current = setInterval(() => {
       if (socketRef.current) {
@@ -176,11 +165,6 @@ export default function useWebSocket() {
     }, 20 * 1000);
   }
 
-  /**
-   * Send any message to the server.
-   * Grabs user "profile" details from localStorage,
-   * merges them in with the message.
-   */
   function sendMessage(data) {
     const profile = getProfileFromStorage();
     console.log('Profile', profile);
