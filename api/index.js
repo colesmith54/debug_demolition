@@ -77,27 +77,11 @@ class Player {
   }
 }
 
-wss.on('connection', (ws) => {
+wss.on('connection', async (ws) => {
   console.log('Client connected');
 
-  ws.on('message', (message) => {
+  ws.on('message', async (message) => {
     console.log(`Raw message received: ${message}`);
-
-    let parsedMessage;
-    try {
-      parsedMessage = JSON.parse(message);
-    } catch (error) {
-      console.error('Failed to parse message:', error);
-      ws.send('Error: Invalid message format');
-      return;
-    }
-
-    if (parsedMessage.status === 'test-message' && parsedMessage.content === 'hello') {
-      ws.send('Received. Hello!'); // Respond to the client
-    } else {
-      ws.send('Message received: ' + message); // Default response for other messages
-    }
-
     const msg = JSON.parse(message);
 
     if (msg.status === 'create-room') {
@@ -106,9 +90,7 @@ wss.on('connection', (ws) => {
         members: [new Player(ws, msg.elo, msg.username, msg.wins, msg.losses)],
         finished: false
       });
-
-      // TODO: associate the room with a debug problem
-
+      
       ws.send(JSON.stringify({ status: 'room-created', roomId: roomId }));
       setTimeout(() => {
         if (rooms.has(roomId) && rooms.get(roomId).members.length < 2) {
@@ -121,11 +103,17 @@ wss.on('connection', (ws) => {
     if (msg.status === 'join-room') {
       const roomId = msg.roomId;
       rooms.get(roomId).members.push(new Player(ws, msg.elo, msg.username, msg.wins, msg.losses));
-      const url = `/game/${roomId}`;
+
+      // get these from CSV
+      const title = null;
+      const problem_description = null;
+      const template = null;
+
+      // query AI for initial code
+      const initialCode = null;
 
       rooms.get(roomId).members.forEach((p) => {
-        // TODO: send problem state
-        p.ws.send(JSON.stringify({ status: 'game-start', url: url }));
+        p.ws.send(JSON.stringify({ status: 'game-start', title: title, problem_description: problem_description, initialCode: initialCode }));
       });
 
       setTimeout(() => {
@@ -145,7 +133,7 @@ wss.on('connection', (ws) => {
 
       const command = `python judge/judge.py ${problemId} ${code}`;
 
-      exec(command, (error, stdout, stderr) => {
+      exec(command, async (error, stdout, stderr) => {
         if (error) {
           console.error(`exec error: ${stderr}`);
           return;
@@ -162,8 +150,8 @@ wss.on('connection', (ws) => {
           updateELO(winner, loser);
 
           try {
-            User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
-            User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
+            await User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
+            await User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
           } catch (err) {
             console.log(err);
           }
@@ -206,4 +194,59 @@ wss.on('connection', (ws) => {
 
 app.get('/', (req, res) => {
   res.send('Server is running!');
+});
+
+app.post('/me', async (req, res) => {
+  const token = req.headers.authorization.split(' ')[1];
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findOne({ username: decoded.username });
+      res.json(user);
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  } else {
+    res.status(401).json({ error: 'No token provided' });
+  }
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username: username }).select('+password');
+
+    if (!user) {
+      return res.status(401).json({ error: 'Incorrect username' });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Incorrect password' });
+    }
+
+    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '50d' });
+    return res.json({ token: token, username: user.username, elo: user.elo, wins: user.wins, losses: user.losses });
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/register', async (req, res) => {
+  try {
+    const existingUser = await User.findOne({ username: req.body.username });
+    if (existingUser) {
+      return res.status(409).json({ error: 'User already exists' });
+    }
+
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username: username, password: hashedPassword });
+    await user.save();
+
+    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '50d' });
+    return res.json({ token: token, username: user.username, elo: user.elo, wins: user.wins, losses: user.losses });
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
