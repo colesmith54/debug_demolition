@@ -1,4 +1,4 @@
-title,html,problem_function,id
+title,html,problem_function,id,function_header
 Two Sum,"
         <h3>Two Sum</h3>
         <p><strong>Problem Statement:</strong> Given an array of integers <code>nums</code> and an integer <code>target</code>, 
@@ -6,8 +6,10 @@ Two Sum,"
         one solution, and you may not use the same element twice. You can return the answer in any order.</p>
         <p><strong>Example:</strong></p>
         <pre>Input: nums = [2, 7, 11, 15], target = 9<br>Output: [0, 1]</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        problems_with_html",TwoSum,0
+                problems_with_html",TwoSum,0,"
+        def TwoSum(nums: List[int], target: int) -> List[int]:
+            pass
+        "
 Valid Parentheses,"
         <h3>Valid Parentheses</h3>
         <p><strong>Problem Statement:</strong> Given a string <code>s</code> containing just the characters '(', ')', '{', '}', '[', and ']', 
@@ -17,8 +19,10 @@ Valid Parentheses,"
         </ul></p>
         <p><strong>Example:</strong></p>
         <pre>Input: s = ""()[]{}""<br>Output: true</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",ValidParentheses,1
+                ",ValidParentheses,1,"
+        def ValidParentheses(s: str) -> bool:
+            pass
+        "
 Merge Two Sorted Lists,"
         <h3>Merge Two Sorted Lists</h3>
         <p><strong>Problem Statement:</strong> You are given the heads of two sorted linked lists <code>list1</code> and <code>list2</code>. 
@@ -26,8 +30,10 @@ Merge Two Sorted Lists,"
         together the nodes of the two lists.</p>
         <p><strong>Example:</strong></p>
         <pre>Input: list1 = [1, 2, 4], list2 = [1, 3, 4]<br>Output: [1, 1, 2, 3, 4, 4]</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",MergeTwoSortedLists,2
+                ",MergeTwoSortedLists,2,"
+        def MergeTwoSortedLists(list1: List[int], list2: List[int]) -> List[int]:
+            pass
+        "
 Best Time to Buy and Sell Stock,"
         <h3>Best Time to Buy and Sell Stock</h3>
         <p><strong>Problem Statement:</strong> You are given an array <code>prices</code> where <code>prices[i]</code> is the price of 
@@ -36,24 +42,20 @@ Best Time to Buy and Sell Stock,"
         return <code>0</code>.</p>
         <p><strong>Example:</strong></p>
         <pre>Input: prices = [7, 1, 5, 3, 6, 4]<br>Output: 5</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",BestTimetoBuyandSellStock,3
+                ",BestTimetoBuyandSellStock,3,"
+        def BestTimetoBuyandSellStock(prices: List[int]) -> int:
+            pass
+        "
 Valid Palindrome,"
         <h3>Valid Palindrome</h3>
         <p><strong>Problem Statement:</strong> Given a string <code>s</code>, determine if it is a palindrome, considering only 
         alphanumeric characters and ignoring cases.</p>
         <p><strong>Example:</strong></p>
         <pre>Input: s = ""A man, a plan, a canal: Panama""<br>Output: true</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",ValidPalindrome,4
-Invert Binary Tree,"
-        <h3>Invert Binary Tree</h3>
-        <p><strong>Problem Statement:</strong> Given the root of a binary tree, invert the tree and return its root. 
-        Inverting a tree means swapping the left and right children of all nodes.</p>
-        <p><strong>Example:</strong></p>
-        <pre>Input:<br>    4<br>   / \<br>  2   7<br> / \ / \<br>1  3 6  9<br>Output:<br>    4<br>   / \<br>  7   2<br> / \ / \<br>9  6 3  1</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",InvertBinaryTree,5
+        ",ValidPalindrome,4,"
+        def ValidPalindrome(s: str) -> bool:
+            pass
+        "
 Valid Anagram,"
         <h3>Valid Anagram</h3>
         <p><strong>Problem Statement:</strong> Given two strings <code>s</code> and <code>t</code>, return <code>true</code> if <code>t</code> 
@@ -61,8 +63,10 @@ Valid Anagram,"
         of a different word or phrase, using all the original letters exactly once.</p>
         <p><strong>Example:</strong></p>
         <pre>Input: s = ""anagram"", t = ""nagaram""<br>Output: true</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",ValidAnagram,6
+		",ValidAnagram,6,"
+        def ValidAnagram(s: str, t: str) -> bool:
+            pass
+        "
 Binary Search,"
         <h3>Binary Search</h3>
         <p><strong>Problem Statement:</strong> Given a sorted array of integers <code>nums</code> and a target value <code>target</code>, 
@@ -70,8 +74,10 @@ Binary Search,"
         You must write an algorithm with <code>O(log n)</code> runtime complexity.</p>
         <p><strong>Example:</strong></p>
         <pre>Input: nums = [-1, 0, 3, 5, 9, 12], target = 9<br>Output: 4</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",BinarySearch,7
+		",BinarySearch,7,"
+        def BinarySearch(nums: List[int], target: int) -> int:
+            pass
+        "
 Flood Fill,"
         <h3>Flood Fill</h3>
         <p><strong>Problem Statement:</strong> An image is represented by an <code>m x n</code> integer grid <code>image</code> where 
@@ -79,14 +85,7 @@ Flood Fill,"
         <code>image[sr][sc]</code>. Replace the color of the pixel and all adjacent pixels of the same color with <code>newColor</code>.</p>
         <p><strong>Example:</strong></p>
         <pre>Input: image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, newColor = 2<br>Output: [[2,2,2],[2,2,0],[2,0,1]]</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",FloodFill,8
-Lowest Common Ancestor of a Binary Search Tree,"
-        <h3>Lowest Common Ancestor of a Binary Search Tree</h3>
-        <p><strong>Problem Statement:</strong> Given a binary search tree (BST), find the lowest common ancestor (LCA) of two given nodes 
-        <code>p</code> and <code>q</code>. The LCA of two nodes <code>p</code> and <code>q</code> is the lowest node in the tree that has both 
-        <code>p</code> and <code>q</code> as descendants.</p>
-        <p><strong>Example:</strong></p>
-        <pre>Input:<br>      6<br>     / \<br>    2   8<br>   / \ / \<br>  0  4 7  9<br>    / \<br>   3   5<br>p = 2, q = 8<br>Output: 6</pre>
-        <p><strong>Multiple Solutions?</strong> No</p>
-        ",LowestCommonAncestorofaBinarySearchTree,9
+		",FloodFill,8,"
+        def FloodFill(image: List[List[int]], sr: int, sc: int, newColor: int) -> List[List[int]]:
+            pass
+        "

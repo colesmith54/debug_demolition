@@ -30,7 +30,7 @@ def TwoSum(nums: List[int], target: int) -> List[int]:
     code = header + code
 
     df = pd.read_csv('problem_test_cases.csv')
-    problems = pd.read_csv('../assets/problems_with_html.csv')
+    problems = pd.read_csv('../assets/problems.csv')
     problem_function_name = problems[problems['id'] == problem_id]['problem_function'].iloc[0]
 
     # problem_function_name = problems[problems['title'] == problem_name]['problem_function'].iloc[0]
