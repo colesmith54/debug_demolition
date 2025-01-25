@@ -1,6 +1,16 @@
 const { exec } = require('child_process');
 const express = require('express');
+
+// CORS Stuff
+const cors = require('cors');
 const app = express();
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000'];
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true, // If you need to send cookies or authentication headers
+}));
+
 app.use(express.json());
 const port = process.env.PORT || 5000;
 const fs = require('fs');
