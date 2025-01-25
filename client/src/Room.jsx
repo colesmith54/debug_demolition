@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { socketRef } from './WebSocketContext';
+import React, { useState, useEffect, useContext } from 'react';
+import { WebSocketContext } from './WebSocketContext';
 import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
 
 const Room = ({ problemHtml }) => {
   const [code, setCode] = useState('');
+  const { sendMessage } = useContext(WebSocketContext);
 
   const editorOptions = {
     selectOnLineNumbers: true,
@@ -27,7 +28,7 @@ const Room = ({ problemHtml }) => {
 
   const handleRunCode = async () => {
     try {
-      socketRef.current.send(JSON.stringify({ status: 'code-submission', code }));
+      sendMessage(JSON.stringify({ status: 'code-submission', code }));
       alert('Code executed successfully');
     } catch (error) {
       console.error('Error running the code', error);
