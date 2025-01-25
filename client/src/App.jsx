@@ -7,7 +7,11 @@ function App() {
 
   // Establish WebSocket connection
   useEffect(() => {
+<<<<<<< Updated upstream
     socketRef.current = new WebSocket('ws://localhost:5000'); // Connect to WebSocket server
+=======
+    socketRef.current = new WebSocket('ws://localhost:3000'); // Connect to WebSocket server
+>>>>>>> Stashed changes
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connected');
