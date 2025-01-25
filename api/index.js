@@ -106,7 +106,7 @@ wss.on('connection', (ws) => {
     if (msg.status === 'test-message' && msg.content === 'hello') {
       ws.send(JSON.stringify({ status: 'error', message: 'b' }));
     } else {
-      ws.send(JSON.stringify({ status: 'error', message: 'c' }));
+      ws.send(JSON.stringify({ status: 'good', message: 'Recieved messaeg successfullt' }));
     }
 
     if (msg.status === 'create-room') {
