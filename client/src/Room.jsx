@@ -7,6 +7,9 @@ const Room = () => {
   const { problemHtml, initialCode, sendMessage } = useContext(WebSocketContext);
   const [code, setCode] = useState(initialCode || '');
 
+  useEffect(() => {
+    sendMessage(JSON.stringify({ status: 'verify-room' }));
+  }, []);
 
   const editorOptions = {
     selectOnLineNumbers: true,

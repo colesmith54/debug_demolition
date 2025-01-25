@@ -216,6 +216,11 @@ wss.on('connection', async (ws) => {
         }
       });
     }
+
+    if (msg.status === 'verify-room') {
+      const player = rooms.find((r) => r.members.find((p) => p.ws === ws));
+      if (!player) ws.send(JSON.stringify({ status: 'room-invalid' }));
+    }
   });
 
   ws.on('close', () => {
@@ -245,21 +250,6 @@ wss.on('connection', async (ws) => {
 
 app.get('/', (req, res) => {
   res.send('Server is running!');
-});
-
-app.post('/me', async (req, res) => {
-  const token = req.headers.authorization.split(' ')[1];
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findOne({ username: decoded.username });
-      res.json(user);
-    } catch (err) {
-      res.status(401).json({ error: 'Invalid token' });
-    }
-  } else {
-    res.status(401).json({ error: 'No token provided' });
-  }
 });
 
 app.post('/login', async (req, res) => {

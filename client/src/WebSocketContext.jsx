@@ -50,8 +50,13 @@ export const WebSocketProvider = ({ children }) => {
           navigate('/room');
         } else if (msg.status === 'game-won') {
           // navigate to home, display some win message with new elo
+          navigate('/');
         } else if (msg.status === 'game-lost') {
           // navigate to home, display some lose message with new elo
+          navigate('/');
+        } else if (msg.status === 'room-invalid') {
+          // user went to /room without creating/joining a room
+          navigate('/');
         }
       } catch (err) {
         console.error('Invalid JSON:', err);
