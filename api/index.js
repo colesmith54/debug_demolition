@@ -138,7 +138,7 @@ wss.on('connection', async (ws) => {
 
       const problemId = hashStringToInt(roomId);
       
-      fs.createReadStream('./problems.csv')
+      fs.createReadStream('./assets/problems.csv')
         .pipe(csv())
         .on('data', async (row) => {
           if (Number(row.id) === problemId) {
