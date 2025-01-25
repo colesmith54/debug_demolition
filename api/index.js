@@ -105,7 +105,7 @@ wss.on('connection', async (ws) => {
     if (parsedMessage.status === 'test-message' && parsedMessage.content === 'hello') {
       ws.send('Received. Hello!'); // Respond to the client
     } else {
-      ws.send('Message received: ' + message); // Default response for other messages
+      ws.send(JSON.stringify({ status: 'error', message: 'c' }));
     }
 
     const msg = JSON.parse(message);

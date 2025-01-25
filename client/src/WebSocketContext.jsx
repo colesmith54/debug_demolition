@@ -1,4 +1,4 @@
-// src/WebSocketContext.jsx.jsx
+// src/WebSocketContext.jsx
 import React, { createContext, useRef, useEffect } from 'react';
 
 export const WebSocketContext = createContext(null);
@@ -28,8 +28,28 @@ export const WebSocketProvider = ({ children }) => {
     };
   }, []);
 
+  const sendMessage = (message) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify(message));
+    } else {
+      console.error('WebSocket is not connected.');
+    }
+  };
+
+  const addMessageListener = (listener) => {
+    if (socketRef.current) {
+      socketRef.current.addEventListener('message', listener);
+    }
+  };
+
+  const removeMessageListener = (listener) => {
+    if (socketRef.current) {
+      socketRef.current.removeEventListener('message', listener);
+    }
+  };
+
   return (
-    <WebSocketContext.Provider value={socketRef.current}>
+    <WebSocketContext.Provider value={{ sendMessage, addMessageListener, removeMessageListener }}>
       {children}
     </WebSocketContext.Provider>
   );
