@@ -75,3 +75,73 @@ class Player {
     this.losses = losses;
   }
 }
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+  ws.on('message', (message) => {
+    const msg = JSON.parse(message);
+
+    if (msg.status === 'create-room') {
+      const roomId = generateCode();
+      rooms.set(roomId, {
+        members: [new Player(ws, msg.elo, msg.username, msg.wins, msg.losses)],
+        finished: false
+      });
+
+      // TODO: associate the room with a debug problem
+
+      ws.send(JSON.stringify({ status: 'room-created', roomId: roomId }));
+      setTimeout(() => {
+        if (rooms.has(roomId) && rooms.get(roomId).members.length < 2) {
+          rooms.delete(roomId);
+          ws.send(JSON.stringify({ status: 'room-expired' }));
+        }
+      }, 300000);
+    }
+
+    if (msg.status === 'join-room') {
+      const roomId = msg.roomId;
+      rooms.get(roomId).members.push(new Player(ws, msg.elo, msg.username, msg.wins, msg.losses));
+      const url = `/game/${roomId}`;
+
+      rooms.get(roomId).members.forEach((p) => {
+        p.ws.send(JSON.stringify({ status: 'game-start', url: url }));
+      });
+
+      setTimeout(() => {
+        if (rooms.has(roomId)) {
+          rooms.delete(roomId);
+          ws.send(JSON.stringify({ status: 'room-expired' }));
+        }
+      }, 7200000);
+    }
+
+    if (msg.status === 'game-end') {
+      const roomId = msg.roomId;
+      rooms.get(roomId).finished = true;
+
+      let winner = null;
+      let loser = null;
+
+      if (msg.result === 'win') {
+        winner = rooms.get(roomId).members[0];
+        loser = rooms.get(roomId).members[1];
+      } else if (msg.result === 'lose') {
+        winner = rooms.get(roomId).members[1];
+        loser = rooms.get(roomId).members[0];
+      }
+
+      updateELO(winner, loser);
+
+      try {
+        User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
+        User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
+      } catch (err) {
+        console.log(err);
+      }
+
+      winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
+      loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
+    }
+  })
+});
