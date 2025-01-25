@@ -216,11 +216,6 @@ wss.on('connection', async (ws) => {
         }
       });
     }
-
-    if (msg.status === 'verify-room') {
-      const player = rooms.find((r) => r.members.find((p) => p.ws === ws));
-      if (!player) ws.send(JSON.stringify({ status: 'room-invalid' }));
-    }
   });
 
   ws.on('close', () => {
