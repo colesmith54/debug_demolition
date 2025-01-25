@@ -237,7 +237,7 @@ wss.on('connection', async (ws) => {
   });
 });
 
-app.get('/', (req, res) => {s
+app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 

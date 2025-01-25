@@ -6,8 +6,13 @@ import { WebSocketContext } from './WebSocketContext';
 function Home() {
   const { sendMessage, addMessageListener, removeMessageListener } = useContext(WebSocketContext);
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [loginUsername, setLoginUsername] = useState('');
   const [username, setUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [inputMessage, setInputMessage] = useState('');
+
   const [roomId, setRoomId] = useState('');
   const [elo, setElo] = useState('1000');
   const [wins, setWins] = useState('0');
@@ -114,10 +119,100 @@ function Home() {
     sendMessage(payload);
   };
 
+  const register = async (username, password) => {
+    try {
+      const response = await fetch('http://localhost:5000/register', { 
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json(); 
+      console.log('Register successful:', data); 
+    } catch (error) {
+      console.error('Register failed:', error.message); 
+    }
+  };    
+
+  const login = async (username, password) => {
+    try {
+      const response = await fetch('http://localhost:5000/login', { // TODO: Change localhost to URL
+        method: 'POST', // HTTP method
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json(); 
+      console.log('Login successful:', data); 
+    } catch (error) {
+      console.error('Login failed:', error.message); 
+    }
+  };
+  
   return (
     <div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          register(registerUsername, registerPassword);
+        }}
+      >
+        <h4>Register</h4>
+        <input
+          type="text"
+          placeholder="Username"
+          value={registerUsername}
+          onChange={(e) => setRegisterUsername(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={registerPassword}
+          onChange={(e) => setRegisterPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Register</button>
+      </form>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          login(loginUsername, loginPassword);
+        }}
+      >
+        <h4>Login</h4>
+        <input
+          type="text"
+          placeholder="Username"
+          value={loginUsername}
+          onChange={(e) => setLoginUsername(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={loginPassword}
+          onChange={(e) => setLoginPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+
       <h1>WebSocket & Routes Test</h1>
-      <button onClick={() => sendTestMessage('Test')}>Send Test Message</button>
+      <button onClick={() => sendMessage({ content: inputMessage })}>Send Test Message</button>
       <hr />
       <h3>Room & Game Actions</h3>
       <form onSubmit={createRoom}>
