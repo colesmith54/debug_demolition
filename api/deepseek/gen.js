@@ -1,5 +1,5 @@
-import OpenAI from 'openai';
-import {parse} from 'csv-parse';
+// import OpenAI from 'openai';
+const {OpenAI} = require('openai');
 const fs = require('fs');
 require('dotenv').config()
 
@@ -27,4 +27,4 @@ async function gen_incorrect_code(problem_statement, starter_code) {
 }
 
 
-export default gen_incorrect_code;
+module.exports = gen_incorrect_code;

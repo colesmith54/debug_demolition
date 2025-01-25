@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 const express = require('express');
-const {gen_incorrect_code} = require('deepseek/gen');
+const gen_incorrect_code = require('./deepseek/gen');
 
 // CORS Stuff
 const cors = require('cors');
@@ -113,7 +113,7 @@ wss.on('connection', async (ws) => {
     const msg = JSON.parse(message);
 
     if (msg.status === 'create-room') {
-      
+
       const roomId = generateCode();
       console.log(`Room created with fsaafas: ${roomId}`);
       rooms.set(roomId, {
@@ -140,14 +140,14 @@ wss.on('connection', async (ws) => {
       
       fs.createReadStream('./problems.csv')
         .pipe(csv())
-        .on('data', (row) => {
+        .on('data', async (row) => {
           if (Number(row.id) === problemId) {
             const title = row.title;
             const problemDescription = row.html;
             const template = row.function_header;
 
             // do some ai stuff here
-            const incorrect_code = gen_incorrect_code(row.html, template)
+            const incorrect_code = await gen_incorrect_code(row.html, template)
 
             rooms.get(roomId).members.forEach((p) => {
               p.ws.send(JSON.stringify({
