@@ -77,7 +77,6 @@ const updateELO = (winner, loser) => {
 // {
 //   roomId: {
 //     members: [p1, p2],
-//     finished: bool
 //   }
 // }
 let rooms = new Map();
@@ -194,11 +193,35 @@ wss.on('connection', (ws) => {
           winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
           loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
 
-          rooms.get(roomId).finished = true;
+          rooms.delete(roomId);
         } else {
          player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
         }
       });
     }
-  })
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+    rooms.forEach((room, roomId) => {
+      if (room.members.find((p) => p.ws === ws)) {
+        const winner = room.members.find((p) => p.ws !== ws);
+        const loser = room.members.find((p) => p.ws === ws);
+
+        updateELO(winner, loser);
+
+        try {
+          User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
+          User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
+        } catch (err) {
+          console.log(err);
+        }
+
+        winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
+        loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
+
+        rooms.delete(roomId);
+      }
+    });
+  });
 });
