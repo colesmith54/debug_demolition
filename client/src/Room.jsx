@@ -54,9 +54,9 @@ const Room = () => {
       >
         {/* Left Panel */}
         <div style={styles.leftPanel}>
-          <div style={styles.runButton} onClick={handleRunCode}>
-            Run
-          </div>
+        <button onClick={handleRunCode}>
+          Run
+        </button>
           <div
             style={styles.problemDetails}
             dangerouslySetInnerHTML={{ __html: problemHtml }}
@@ -90,15 +90,6 @@ const styles = {
     backgroundColor: 'white',
     overflowY: 'auto',
     borderRight: '2px solid #ddd',
-  },
-  runButton: {
-    backgroundColor: '#007bff',
-    color: 'white',
-    padding: '10px 20px',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    marginBottom: '20px',
   },
   problemDetails: {
     fontSize: '16px',
