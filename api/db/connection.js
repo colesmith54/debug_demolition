@@ -7,7 +7,7 @@ const client = new MongoClient(uri, {
 });
 
 module.exports = { 
-  connectToServer: function() {
+  connectToServer: () => {
     mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
@@ -18,7 +18,7 @@ module.exports = {
     });
   },
 
-  getDb: function() {
+  getDb: () => {
     return client.db('debugbattle');
   }
 }
