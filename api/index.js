@@ -1,5 +1,6 @@
 const { exec } = require('child_process');
 const express = require('express');
+const {gen_incorrect_code} = require('deepseek/gen');
 
 // CORS Stuff
 const cors = require('cors');
@@ -17,6 +18,7 @@ const fs = require('fs');
 const csv = require('csv-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+
 require('dotenv').config();
 
 const db = require("./db/connection")
@@ -141,13 +143,14 @@ wss.on('connection', async (ws) => {
             const template = row.function_header;
 
             // do some ai stuff here
+            const incorrect_code = gen_incorrect_code(row.html, template)
 
             rooms.get(roomId).members.forEach((p) => {
               p.ws.send(JSON.stringify({
                 status: 'game-start',
                 title: title,
                 problem_description: problemDescription,
-                initialCode: template,
+                initialCode: incorrect_code,
               }));
             });
 
