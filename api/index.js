@@ -2,14 +2,13 @@ const { exec } = require('child_process');
 const express = require('express');
 const gen_incorrect_code = require('./deepseek/gen');
 
-// CORS Stuff
 const cors = require('cors');
 const app = express();
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000'];
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true, // If you need to send cookies or authentication headers
+  credentials: true,
 }));
 
 app.use(express.json());
@@ -105,7 +104,7 @@ wss.on('connection', async (ws) => {
     }
 
     if (parsedMessage.status === 'test-message' && parsedMessage.content === 'hello') {
-      ws.send('Received. Hello!'); // Respond to the client
+      ws.send('Received. Hello!');
     } else {
       ws.send(JSON.stringify({ status: 'error', message: 'c' }));
     }
@@ -147,7 +146,7 @@ wss.on('connection', async (ws) => {
             const template = row.function_header;
 
             // do some ai stuff here
-            const incorrect_code = await gen_incorrect_code(row.html, template)
+            const incorrect_code = gen_incorrect_code(row.html, template)
 
             rooms.get(roomId).members.forEach((p) => {
               p.ws.send(JSON.stringify({
@@ -177,7 +176,7 @@ wss.on('connection', async (ws) => {
     }
 
     if (msg.status === 'code-submission') {
-      const roomId = msg.roomId;
+      const roomId = rooms.find((r) => r.members.find((p) => p.ws === ws));
       const player = rooms.get(roomId).members.find((p) => p.ws === ws);
 
       const code = msg.code;

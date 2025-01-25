@@ -1,54 +1,121 @@
+<<<<<<< Updated upstream
 // src/Room.jsx
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { WebSocketContext } from './WebSocketContext.jsx';
+=======
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { socketRef } from './WebSocketContext';
+import Editor from '@monaco-editor/react';
+>>>>>>> Stashed changes
 
-function Room() {
-  const { roomId } = useParams();
-  const socket = useContext(WebSocketContext);
-  const [roomMessages, setRoomMessages] = useState([]);
+const Room = ({ problemHtml }) => {
+  const [code, setCode] = useState('');
+
+  const editorOptions = {
+    selectOnLineNumbers: true,
+    minimap: { enabled: false },
+    wordWrap: 'on',
+    theme: 'vs-light'
+  };
 
   useEffect(() => {
-    if (!socket) return;
-
-    const handleMessage = async (event) => {
-      let rawData;
-      if (typeof event.data === 'string') {
-        rawData = event.data;
-      } else {
-        rawData = await event.data.text();
-      }
-
-      console.log('Room message from server:', rawData);
-      try {
-        const msg = JSON.parse(rawData);
-        if (msg.roomId === roomId) { // Ensure the message is relevant to this room
-          setRoomMessages((prev) => [...prev, msg]);
-        }
-      } catch (err) {
-        console.error('Invalid JSON:', err);
+    const handleResize = () => {
+      if (window.monaco) {
+        window.monaco.editor.getModels().forEach((model) => model.setValue(code));
       }
     };
 
+<<<<<<< Updated upstream
     // Cleanup listener on unmount
     return () => {
       socket.removeEventListener('message', handleMessage);
     };
   }, [socket, roomId]);
+=======
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [code]);
+
+  const handleRunCode = async () => {
+    try {
+      socketRef.current.send(JSON.stringify({ status: 'code-submission', code: code }));
+      alert('Code sent!');
+    } catch (error) {
+      console.error('Error running the code', error);
+      alert('Error executing code');
+    }
+  };
+>>>>>>> Stashed changes
 
   return (
-    <div>
-      <h1>Room Page</h1>
-      <p>Welcome to Room ID: {roomId}</p>
-      <h2>Room Messages:</h2>
-      <ul>
-        {roomMessages.map((msg, index) => (
-          <li key={index}>{JSON.stringify(msg)}</li>
-        ))}
-      </ul>
-      {/* Add more room-specific UI components here */}
+    <div style={styles.container}>
+      <div style={styles.leftPanel}>
+        <div style={styles.runButton} onClick={handleRunCode}>
+          Run
+        </div>
+        <div
+          style={styles.problemDetails}
+          dangerouslySetInnerHTML={{ __html: problemHtml }}
+        />
+      </div>
+
+      <div style={styles.rightPanel}>
+        <Editor
+          defaultLanguage={'python'}
+          value={code}
+          onChange={(newValue) => setCode(newValue)}
+          options={editorOptions}
+          height="100%"
+        />
+      </div>
     </div>
   );
-}
+};
+
+const styles = {
+  container: {
+    display: 'flex',
+    height: '100vh',
+    overflow: 'hidden',
+  },
+  leftPanel: {
+    width: '50%',
+    padding: '20px',
+    backgroundColor: 'white',
+    position: 'relative',
+    overflowY: 'auto',
+    borderRight: '2px solid #ddd',
+  },
+  runButton: {
+    position: 'absolute',
+    top: '20px',
+    right: '20px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+  },
+  problemDetails: {
+    marginTop: '40px',
+    fontSize: '16px',
+    lineHeight: '1.5',
+    color: '#333',
+  },
+  rightPanel: {
+    width: '50%',
+    padding: '10px',
+    backgroundColor: '#f5f5f5',
+    height: '100%',
+  },
+};
+
+Room.propTypes = {
+  problemHtml: PropTypes.string
+};
 
 export default Room;
