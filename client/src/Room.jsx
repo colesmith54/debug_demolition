@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { socketRef } from './WebSocketContext';
 import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
 
 const Room = ({ problemHtml }) => {
   const [code, setCode] = useState('');
-  const [theme, setTheme] = useState('vs-light'); // Always use 'vs-light' theme
 
-  // Monaco Editor options
   const editorOptions = {
     selectOnLineNumbers: true,
     minimap: { enabled: false },
     wordWrap: 'on',
-    theme, // Always 'vs-light' theme
+    theme: 'vs-light'
   };
 
   useEffect(() => {
-    // Ensuring Monaco editor resizes properly
     const handleResize = () => {
       if (window.monaco) {
         window.monaco.editor.getModels().forEach((model) => model.setValue(code));
@@ -27,13 +25,9 @@ const Room = ({ problemHtml }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [code]);
 
-  // Function to handle "Run" button click
   const handleRunCode = async () => {
     try {
-      // Sending the code to the backend API
-      // const response = await axios.post('/api/execute-code', { code, language });
-      // console.log('API Response:', response.data);
-      // Handle the response (e.g., show output, errors, etc.)
+      socketRef.current.send(JSON.stringify({ status: 'code-submission', code }));
       alert('Code executed successfully');
     } catch (error) {
       console.error('Error running the code', error);
