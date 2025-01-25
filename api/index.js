@@ -130,17 +130,36 @@ wss.on('connection', async (ws) => {
       const roomId = msg.roomId;
       rooms.get(roomId).members.push(new Player(ws, msg.elo, msg.username, msg.wins, msg.losses));
 
-      // get these from CSV
-      const title = null;
-      const problem_description = null;
-      const template = null;
+      const problemId = hashStringToInt(roomId);
+      
+      fs.createReadStream('./problems.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+          if (Number(row.id) === problemId) {
+            const title = row.title;
+            const problemDescription = row.html;
+            const template = row.function_header;
 
-      // query AI for initial code
-      const initialCode = null;
+            // do some ai stuff here
 
-      rooms.get(roomId).members.forEach((p) => {
-        p.ws.send(JSON.stringify({ status: 'game-start', title: title, problem_description: problem_description, initialCode: initialCode }));
-      });
+            rooms.get(roomId).members.forEach((p) => {
+              p.ws.send(JSON.stringify({
+                status: 'game-start',
+                title: title,
+                problem_description: problemDescription,
+                initialCode: template,
+              }));
+            });
+
+            this.destroy();
+          }
+        })
+        .on('end', () => {
+          console.log(`Problem with ID ${problemId} queried successfully`);
+        })
+        .on('error', (err) => {
+          console.error('Error reading CSV:', err);
+        });
 
       setTimeout(() => {
         if (rooms.has(roomId)) {
