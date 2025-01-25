@@ -10,9 +10,11 @@ const Room = () => {
   useEffect(() => {
     setHasNavigated(false);
     setCode((prevCode) => {
-      return prevCode
-        .replace(/^`+|`+$/g, '')
-        .replace(/^python\s*/, '');
+      if (!prevCode) return initialCode;
+      while (prevCode && prevCode.endsWith('`')) prevCode = prevCode.slice(0, -1);
+      while (prevCode && prevCode.startsWith('`')) prevCode = prevCode.slice(1);
+      while (prevCode && prevCode.startsWith('python')) prevCode = prevCode.slice(6);
+      return prevCode;
     });
   }, [initialCode, setHasNavigated]);
 
