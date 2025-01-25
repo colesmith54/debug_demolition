@@ -1,81 +1,80 @@
-import React, { useEffect } from 'react';
-import useWebSocket from './useWebSocket';
+import React, { useEffect, useRef, useState } from 'react';
 
 function App() {
-  const {
-    roomID,
-    url,
-    screen,
-    shuffleStatus,
-    connect,
-    disconnect,
-    sendMessage,
-  } = useWebSocket();
+  const socketRef = useRef(null); 
+  const [messages, setMessages] = useState([]); 
+  const [inputMessage, setInputMessage] = useState(''); 
 
+  // Establish WebSocket connection
   useEffect(() => {
-    // Request Notification permission once (if not granted)
-    Notification.requestPermission();
+<<<<<<< Updated upstream
+    socketRef.current = new WebSocket('ws://localhost:5000'); // Connect to WebSocket server
+=======
+    socketRef.current = new WebSocket('ws://localhost:3000'); // Connect to WebSocket server
+>>>>>>> Stashed changes
+
+    socketRef.current.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    socketRef.current.onmessage = (event) => {
+      console.log('Message from server:', event.data); // Log received message
+      setMessages((prevMessages) => [...prevMessages, event.data]); // Add to state
+    };
+
+    socketRef.current.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    // Cleanup on unmount
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
   }, []);
 
-  const handleCreateRoom = () => {
-    sendMessage({ status: 'create-room', difficulty: ['Medium'] });
-  };
-
-  const handleJoinRoom = () => {
-    sendMessage({ status: 'join-room', roomID: 'ABC123' });
+  // Function to send a message
+  const sendMessage = (m) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      const message = JSON.stringify({ status: 'test-message', content: m });
+      console.log('Sending message:', message);
+      socketRef.current.send(message); // Send message to server
+    } else {
+      console.error('WebSocket is not connected');
+    }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Leet Battle React</h1>
-      <p>WebSocket URL: {url}</p>
-      <p>Current Screen: {screen}</p>
-      <p>Shuffle Status: {shuffleStatus}</p>
-      <button onClick={handleCreateRoom}>Create Room</button>
-      <button onClick={handleJoinRoom}>Join Room</button>
-      <button onClick={() => sendMessage({ status: 'play-online', difficulty: ['Easy', 'Medium'] })}>
-        Play Online
-      </button>
-      <button onClick={disconnect}>End Session</button>
-      {roomID && <p>Room ID: {roomID}</p>}
+    <div>
+      <h1>WebSocket Test</h1>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault(); 
+          sendMessage(inputMessage);
+        }}
+      >
+        <input
+          type="text"
+          placeholder="Type your message"
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)} 
+        />
+        <button type="submit">Send</button>
+      </form>
+
+      <h2>Received Messages:</h2>
+      <ul>
+        {messages.map((msg, index) => (
+          <li key={index}>{msg}</li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 export default App;
-
-
-// import { useState } from 'react'
-
-// import './App.css'
-
-// function App() {
-//   const [count, setCount] = useState(0)
-
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vite.dev" target="_blank">
-//           <img src={viteLogo} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.jsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   )
-// }
-
-// export default App

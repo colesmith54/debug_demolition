@@ -1,7 +1,8 @@
+const { exec } = require('child_process');
 const express = require('express');
 const app = express();
 app.use(express.json());
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 const fs = require('fs');
 const csv = require('csv-parser');
 const jwt = require('jsonwebtoken');
@@ -14,6 +15,7 @@ const User = require("./models/user")
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
+
 
 const redis = require('redis');
 const client = redis.createClient({
@@ -40,6 +42,10 @@ const server = app.listen(port, () => {
 });
 const wss = new WebSocket.Server({ server });
 
+wss.on('error', (err) => {
+  console.error('WebSocket error:', err);
+});
+
 const generateCode = () => {
   const n = 6;
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -65,7 +71,6 @@ const updateELO = (winner, loser) => {
 // {
 //   roomId: {
 //     members: [p1, p2],
-//     finished: bool
 //   }
 // }
 let rooms = new Map();
@@ -82,8 +87,28 @@ class Player {
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
+
   ws.on('message', (message) => {
+    console.log(`Raw message received: ${message}`);
+
+    let parsedMessage;
+    try {
+      parsedMessage = JSON.parse(message);
+    } catch (error) {
+      console.error('Failed to parse message:', error);
+      ws.send('Error: Invalid message format');
+      return;
+    }
+
+    if (parsedMessage.status === 'test-message' && parsedMessage.content === 'hello') {
+      ws.send('Received. Hello!'); // Respond to the client
+    } else {
+      ws.send('Message received: ' + message); // Default response for other messages
+    }
+
     const msg = JSON.parse(message);
+
+    console.log("Message received:", msg);
 
     if (msg.status === 'create-room') {
       const roomId = generateCode();
@@ -148,5 +173,69 @@ wss.on('connection', (ws) => {
       winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
       loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
     }
-  })
+
+    if (msg.status === 'code-submission') {
+      const roomId = msg.roomId;
+      const player = rooms.get(roomId).members.find((p) => p.ws === ws);
+
+      const code = msg.code;
+      const command = `python script.py ${code}`;
+
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${stderr}`);
+          return;
+        }
+        
+        const outputLines = stdout.split('\n');
+        const status = outputLines[0];
+        const output = outputLines.slice(1).join('\n');
+
+        if (status === 'accepted') {
+          const winner = player;
+          const loser = rooms.get(roomId).members.find((p) => p.ws !== ws);
+
+          updateELO(winner, loser);
+
+          try {
+            User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
+            User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
+          } catch (err) {
+            console.log(err);
+          }
+
+          winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
+          loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
+
+          rooms.delete(roomId);
+        } else {
+         player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
+        }
+      });
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+    rooms.forEach((room, roomId) => {
+      if (room.members.find((p) => p.ws === ws)) {
+        const winner = room.members.find((p) => p.ws !== ws);
+        const loser = room.members.find((p) => p.ws === ws);
+
+        updateELO(winner, loser);
+
+        try {
+          User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
+          User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
+        } catch (err) {
+          console.log(err);
+        }
+
+        winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
+        loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
+
+        rooms.delete(roomId);
+      }
+    });
+  });
 });
