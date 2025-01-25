@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
 
 const Room = () => {
-  const { problemHtml, initialCode, sendMessage } = useContext(WebSocketContext);
+  const { problemHtml, initialCode, sendMessage, setHasNavigated } = useContext(WebSocketContext);
   const [code, setCode] = useState(initialCode || '');
 
   useEffect(() => {
-    sendMessage(JSON.stringify({ status: 'verify-room' }));
+    setHasNavigated(false);
   }, []);
 
   const editorOptions = {

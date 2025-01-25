@@ -1,20 +1,28 @@
-// src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { WebSocketProvider } from './WebSocketContext';
 import Home from './Home';
 import Room from './Room';
-import { WebSocketProvider } from './WebSocketContext.jsx';
+import RouteGuard from './RouteGuard';
 
 function App() {
   return (
-    <WebSocketProvider>
-      <Router>
+    <BrowserRouter>
+      <WebSocketProvider>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/room" element={<Room />} />
+
+          <Route
+            path="/room"
+            element={
+              <RouteGuard>
+                <Room />
+              </RouteGuard>
+            }
+          />
         </Routes>
-      </Router>
-    </WebSocketProvider>
+      </WebSocketProvider>
+    </BrowserRouter>
   );
 }
 

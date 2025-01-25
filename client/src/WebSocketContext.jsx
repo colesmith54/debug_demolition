@@ -9,6 +9,7 @@ export const WebSocketProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [problemHtml, setProblemHtml] = useState(null);
   const [initialCode, setInitialCode] = useState(null);
+  const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate(); // Hook to navigate
 
   useEffect(() => {
@@ -47,15 +48,11 @@ export const WebSocketProvider = ({ children }) => {
           setProblemHtml(msg.problemHtml);
           setInitialCode(msg.initialCode);
 
+          setHasNavigated(true);
           navigate('/room');
         } else if (msg.status === 'game-won') {
-          // navigate to home, display some win message with new elo
           navigate('/');
         } else if (msg.status === 'game-lost') {
-          // navigate to home, display some lose message with new elo
-          navigate('/');
-        } else if (msg.status === 'room-invalid') {
-          // user went to /room without creating/joining a room
           navigate('/');
         }
       } catch (err) {
@@ -78,7 +75,7 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
-    <WebSocketContext.Provider value={{ sendMessage, roomId, messages, problemHtml, initialCode }}>
+    <WebSocketContext.Provider value={{ sendMessage, roomId, messages, problemHtml, initialCode, setHasNavigated }}>
       {children}
     </WebSocketContext.Provider>
   );
