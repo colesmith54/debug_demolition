@@ -9,7 +9,12 @@ const Room = () => {
 
   useEffect(() => {
     setHasNavigated(false);
-  }, []);
+    setCode((prevCode) => {
+      return prevCode
+        .replace(/^python|\bpython$/g, '')
+        .replace(/^`|`$/g, '');
+    });
+  }, [initialCode, setHasNavigated]);
 
   const editorOptions = {
     selectOnLineNumbers: true,
