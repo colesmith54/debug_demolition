@@ -109,7 +109,7 @@ wss.on('connection', (ws) => {
       const url = `/game/${roomId}`;
 
       rooms.get(roomId).members.forEach((p) => {
-        // send problem state
+        // TODO: send problem state
         p.ws.send(JSON.stringify({ status: 'game-start', url: url }));
       });
 
