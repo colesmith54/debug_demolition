@@ -1,13 +1,14 @@
 // src/WebSocketContext.jsx
-import React, { createContext, useRef, useEffect } from 'react';
+import React, { createContext, useRef, useEffect, useState } from 'react';
 
 export const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
   const socketRef = useRef(null);
+  const [roomId, setRoomId] = useState(null);
+  const [messages, setMessages] = useState([]); 
 
   useEffect(() => {
-    // Initialize WebSocket connection
     socketRef.current = new WebSocket('ws://localhost:5000');
 
     socketRef.current.onopen = () => {
@@ -22,7 +23,30 @@ export const WebSocketProvider = ({ children }) => {
       console.error('WebSocket error:', error);
     };
 
-    // Cleanup on unmount
+    socketRef.current.onmessage = (event) => {
+      let rawData;
+      if (typeof event.data === 'string') {
+        rawData = event.data;
+      } else {
+        rawData = event.data.text();
+      }
+
+      console.log('Message from server:', rawData);
+      setMessages((prev) => [...prev, rawData]);
+
+      try {
+        const msg = JSON.parse(rawData);
+        console.log("Handle Message: ", msg);
+
+        if (msg.status === 'room-created' && msg.roomId) {
+          setRoomId(msg.roomId);
+          // TODO: Set navigation here
+        }
+      } catch (err) {
+        console.error('Invalid JSON:', err);
+      }
+    };
+
     return () => {
       if (socketRef.current) socketRef.current.close();
     };
@@ -30,26 +54,15 @@ export const WebSocketProvider = ({ children }) => {
 
   const sendMessage = (message) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      console.log('Sending message:', message);
       socketRef.current.send(JSON.stringify(message));
     } else {
       console.error('WebSocket is not connected.');
     }
   };
 
-  const addMessageListener = (listener) => {
-    if (socketRef.current) {
-      socketRef.current.addEventListener('message', listener);
-    }
-  };
-
-  const removeMessageListener = (listener) => {
-    if (socketRef.current) {
-      socketRef.current.removeEventListener('message', listener);
-    }
-  };
-
   return (
-    <WebSocketContext.Provider value={{ sendMessage, addMessageListener, removeMessageListener }}>
+    <WebSocketContext.Provider value={{ sendMessage, roomId, messages }}>
       {children}
     </WebSocketContext.Provider>
   );

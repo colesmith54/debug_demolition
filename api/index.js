@@ -113,13 +113,17 @@ wss.on('connection', async (ws) => {
     const msg = JSON.parse(message);
 
     if (msg.status === 'create-room') {
+      
       const roomId = generateCode();
+      console.log(`Room created with fsaafas: ${roomId}`);
       rooms.set(roomId, {
         members: [new Player(ws, msg.elo, msg.username, msg.wins, msg.losses)],
         finished: false
       });
       
       ws.send(JSON.stringify({ status: 'room-created', roomId: roomId }));
+      console.log(`Room created with ID: ${roomId}`);
+
       setTimeout(() => {
         if (rooms.has(roomId) && rooms.get(roomId).members.length < 2) {
           rooms.delete(roomId);
