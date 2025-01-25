@@ -3,9 +3,10 @@ import { WebSocketContext } from './WebSocketContext';
 import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
 
-const Room = ({ problemHtml }) => {
-  const [code, setCode] = useState('');
-  const { sendMessage } = useContext(WebSocketContext);
+const Room = () => {
+  const { problemHtml, initialCode, sendMessage } = useContext(WebSocketContext);
+  const [code, setCode] = useState(initialCode || '');
+
 
   const editorOptions = {
     selectOnLineNumbers: true,

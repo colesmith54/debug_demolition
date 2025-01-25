@@ -1,12 +1,15 @@
-// src/WebSocketContext.jsx
 import React, { createContext, useRef, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
   const socketRef = useRef(null);
   const [roomId, setRoomId] = useState(null);
-  const [messages, setMessages] = useState([]); 
+  const [messages, setMessages] = useState([]);
+  const [problemHtml, setProblemHtml] = useState(null);
+  const [initialCode, setInitialCode] = useState(null);
+  const navigate = useNavigate(); // Hook to navigate
 
   useEffect(() => {
     socketRef.current = new WebSocket('ws://localhost:5000');
@@ -40,7 +43,15 @@ export const WebSocketProvider = ({ children }) => {
 
         if (msg.status === 'room-created' && msg.roomId) {
           setRoomId(msg.roomId);
-          // TODO: Set navigation here
+        } else if (msg.status === 'game-start') {
+          setProblemHtml(msg.problemHtml);
+          setInitialCode(msg.initialCode);
+
+          navigate('/room');
+        } else if (msg.status === 'game-won') {
+          // navigate to home, display some win message with new elo
+        } else if (msg.status === 'game-lost') {
+          // navigate to home, display some lose message with new elo
         }
       } catch (err) {
         console.error('Invalid JSON:', err);
@@ -50,7 +61,7 @@ export const WebSocketProvider = ({ children }) => {
     return () => {
       if (socketRef.current) socketRef.current.close();
     };
-  }, []);
+  }, [navigate]);
 
   const sendMessage = (message) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -62,7 +73,7 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
-    <WebSocketContext.Provider value={{ sendMessage, roomId, messages }}>
+    <WebSocketContext.Provider value={{ sendMessage, roomId, messages, problemHtml, initialCode }}>
       {children}
     </WebSocketContext.Provider>
   );
