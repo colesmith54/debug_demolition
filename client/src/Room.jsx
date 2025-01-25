@@ -2,13 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import { WebSocketContext } from './WebSocketContext';
 import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
+import Split from 'react-split';
 
 const Room = () => {
-  const { problemHtml, initialCode, sendMessage, setHasNavigated } = useContext(WebSocketContext);
+  const { problemHtml, initialCode, sendMessage, roomId, player1, player2 } = useContext(WebSocketContext);
   const [code, setCode] = useState(initialCode || '');
 
   useEffect(() => {
-    setHasNavigated(false);
     setCode((prevCode) => {
       if (!prevCode) return initialCode;
       while (prevCode && prevCode.endsWith('`')) prevCode = prevCode.slice(0, -1);
@@ -16,26 +16,14 @@ const Room = () => {
       while (prevCode && prevCode.startsWith('python')) prevCode = prevCode.slice(6);
       return prevCode;
     });
-  }, [initialCode, setHasNavigated]);
+  }, [initialCode]);
 
   const editorOptions = {
     selectOnLineNumbers: true,
     minimap: { enabled: false },
     wordWrap: 'on',
-    theme: 'vs-light'
+    theme: 'vs-light',
   };
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.monaco) {
-        window.monaco.editor.getModels().forEach((model) => model.setValue(code));
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [code]);
 
   const handleRunCode = async () => {
     try {
@@ -48,65 +36,76 @@ const Room = () => {
   };
 
   return (
-    <div style={styles.container}>
-      {/* Left side: Problem Details */}
-      <div style={styles.leftPanel}>
-        <div style={styles.runButton} onClick={handleRunCode}>
-          Run
-        </div>
-        <div
-          style={styles.problemDetails}
-          dangerouslySetInnerHTML={{ __html: problemHtml }}
-        />
+    <div>
+      {/* Header Section */}
+      <div style={styles.header}>
+        <h2>Room ID: {roomId}</h2>
+        <h4>Player 1: {player1 || 'Waiting...'}</h4>
+        <h4>Player 2: {player2 || 'Waiting for player...'}</h4>
       </div>
 
-      {/* Right side: Monaco Code Editor */}
-      <div style={styles.rightPanel}>
-        <Editor
-          defaultLanguage={'python'}
-          value={code}
-          onChange={(newValue) => setCode(newValue)}
-          options={editorOptions}
-          height="100%"
-        />
-      </div>
+      {/* Draggable Split Panels */}
+      <Split
+        sizes={[50, 50]}
+        minSize={100}
+        gutterSize={10}
+        direction="horizontal"
+        style={{ height: 'calc(100vh - 100px)' }} // Adjust to fit below the header
+      >
+        {/* Left Panel */}
+        <div style={styles.leftPanel}>
+          <div style={styles.runButton} onClick={handleRunCode}>
+            Run
+          </div>
+          <div
+            style={styles.problemDetails}
+            dangerouslySetInnerHTML={{ __html: problemHtml }}
+          />
+        </div>
+
+        {/* Right Panel */}
+        <div style={styles.rightPanel}>
+          <Editor
+            defaultLanguage={'python'}
+            value={code}
+            onChange={(newValue) => setCode(newValue)}
+            options={editorOptions}
+            height="100%"
+          />
+        </div>
+      </Split>
     </div>
   );
 };
 
 const styles = {
-  container: {
-    display: 'flex',
-    height: '100vh',
-    overflow: 'hidden',
+  header: {
+    padding: '20px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    textAlign: 'center',
   },
   leftPanel: {
-    width: '50%',
     padding: '20px',
     backgroundColor: 'white',
-    position: 'relative',
     overflowY: 'auto',
     borderRight: '2px solid #ddd',
   },
   runButton: {
-    position: 'absolute',
-    top: '20px',
-    right: '20px',
     backgroundColor: '#007bff',
     color: 'white',
     padding: '10px 20px',
     borderRadius: '5px',
     cursor: 'pointer',
     fontWeight: 'bold',
+    marginBottom: '20px',
   },
   problemDetails: {
-    marginTop: '40px',
     fontSize: '16px',
     lineHeight: '1.5',
     color: '#333',
   },
   rightPanel: {
-    width: '50%',
     padding: '10px',
     backgroundColor: '#f5f5f5',
     height: '100%',
@@ -114,7 +113,7 @@ const styles = {
 };
 
 Room.propTypes = {
-  problemHtml: PropTypes.string
+  problemHtml: PropTypes.string,
 };
 
 export default Room;
