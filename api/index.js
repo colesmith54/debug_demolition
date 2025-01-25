@@ -1,6 +1,16 @@
 const { exec } = require('child_process');
 const express = require('express');
+
+// CORS Stuff
+const cors = require('cors');
 const app = express();
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5000'];
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true, // If you need to send cookies or authentication headers
+}));
+
 app.use(express.json());
 const port = process.env.PORT || 5000;
 const fs = require('fs');
@@ -82,23 +92,22 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (message) => {
     console.log(`Raw message received: ${message}`);
-
-    let parsedMessage;
+  
+    let msg;
     try {
-      parsedMessage = JSON.parse(message);
+      msg = JSON.parse(message);
     } catch (error) {
       console.error('Failed to parse message:', error);
-      ws.send('Error: Invalid message format');
+      ws.send(JSON.stringify({ status: 'error', message: 'Room does not exist' }));
       return;
     }
-
-    if (parsedMessage.status === 'test-message' && parsedMessage.content === 'hello') {
-      ws.send('Received. Hello!'); // Respond to the client
+  
+    // Handle test-message
+    if (msg.status === 'test-message' && msg.content === 'hello') {
+      ws.send(JSON.stringify({ status: 'error', message: 'b' }));
     } else {
-      ws.send('Message received: ' + message); // Default response for other messages
+      ws.send(JSON.stringify({ status: 'error', message: 'c' }));
     }
-
-    const msg = JSON.parse(message);
 
     if (msg.status === 'create-room') {
       const roomId = generateCode();
@@ -204,6 +213,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-app.get('/', (req, res) => {
+app.get('/', (req, res) => {s
   res.send('Server is running!');
 });
