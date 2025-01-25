@@ -14,19 +14,19 @@ def main():
     args = sys.argv
 
     # problem_name = 'Two Sum'
-    problem_id = 0
+    problem_id = int(args[1])
 
     # code is a function
-    code = '''
-def TwoSum(nums: List[int], target: int) -> List[int]:
-    n = len(nums)
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if nums[i] + nums[j] == target:
-                return [i, j]
-    return [-1, -1]
-    '''
-
+#     code = '''
+# def TwoSum(nums: List[int], target: int) -> List[int]:
+#     n = len(nums)
+#     for i in range(n - 1):
+#         for j in range(i + 1, n):
+#             if nums[i] + nums[j] == target:
+#                 return [i, j]
+#     return [-1, -1]
+#     '''
+    code = args[2]
     code = header + code
 
     df = pd.read_csv('problem_test_cases.csv')
@@ -51,6 +51,7 @@ def TwoSum(nums: List[int], target: int) -> List[int]:
             results['failed'].append({'input': inp, 'expected': out, 'output': context['output']})
 
     pprint.pprint(results)
+
 
 if __name__ == '__main__':
     main()
