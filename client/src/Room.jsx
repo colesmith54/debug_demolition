@@ -11,8 +11,8 @@ const Room = () => {
     setHasNavigated(false);
     setCode((prevCode) => {
       return prevCode
-        .replace(/^python|\bpython$/g, '')
-        .replace(/^`|`$/g, '');
+        .replace(/^`+|`+$/g, '')
+        .replace(/^python\s*/, '');
     });
   }, [initialCode, setHasNavigated]);
 
