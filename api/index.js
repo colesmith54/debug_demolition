@@ -1,3 +1,4 @@
+const { exec } = require('child_process');
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -147,6 +148,46 @@ wss.on('connection', (ws) => {
 
       winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
       loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
+    }
+
+    if (msg.status === 'code-submission') {
+      const roomId = msg.roomId;
+      const player = rooms.get(roomId).members.find((p) => p.ws === ws);
+
+      const code = msg.code;
+      const command = `python script.py ${code}`;
+
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${stderr}`);
+          return;
+        }
+        
+        const outputLines = stdout.split('\n');
+        const status = outputLines[0];
+        const output = outputLines.slice(1).join('\n');
+
+        if (status === 'accepted') {
+          const winner = player;
+          const loser = rooms.get(roomId).members.find((p) => p.ws !== ws);
+
+          updateELO(winner, loser);
+
+          try {
+            User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
+            User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
+          } catch (err) {
+            console.log(err);
+          }
+
+          winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
+          loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
+
+          rooms.get(roomId).finished = true;
+        } else {
+         player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
+        }
+      });
     }
   })
 });
