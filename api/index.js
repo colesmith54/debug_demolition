@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
+
 const redis = require('redis');
 const client = redis.createClient({
   password: process.env.REDIS_PASSWORD,
@@ -39,6 +40,16 @@ const server = app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
 const wss = new WebSocket.Server({ server });
+wss.on('connection', (ws) => {
+  console.log('WebSocket connected');
+  ws.on('message', (message) => {
+    console.log(`Received: ${message}`);
+  });
+});
+
+wss.on('error', (err) => {
+  console.error('WebSocket error:', err);
+});
 
 const generateCode = () => {
   const n = 6;
