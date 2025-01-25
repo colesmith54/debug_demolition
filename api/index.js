@@ -136,34 +136,6 @@ wss.on('connection', (ws) => {
       }, 7200000);
     }
 
-    if (msg.status === 'game-end') {
-      const roomId = msg.roomId;
-      rooms.get(roomId).finished = true;
-
-      let winner = null;
-      let loser = null;
-
-      if (msg.result === 'win') {
-        winner = rooms.get(roomId).members[0];
-        loser = rooms.get(roomId).members[1];
-      } else if (msg.result === 'lose') {
-        winner = rooms.get(roomId).members[1];
-        loser = rooms.get(roomId).members[0];
-      }
-
-      updateELO(winner, loser);
-
-      try {
-        User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
-        User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
-      } catch (err) {
-        console.log(err);
-      }
-
-      winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
-      loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
-    }
-
     if (msg.status === 'code-submission') {
       const roomId = msg.roomId;
       const player = rooms.get(roomId).members.find((p) => p.ws === ws);
