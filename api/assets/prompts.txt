@@ -11,4 +11,7 @@ The provided starter code is:
 #
 ---END STARTER CODE STATEMENT---
 
-Output only the code.
+Output only the code in plain text.
+Do not give any comments.
+Do not explain what is wrong with the code.
+The purpose is to test a person to figure out what is wrong.
