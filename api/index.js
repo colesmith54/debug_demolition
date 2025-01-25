@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const express = require('express');
 const app = express();
 app.use(express.json());
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 7001;
 const fs = require('fs');
 const csv = require('csv-parser');
 const jwt = require('jsonwebtoken');
@@ -12,34 +12,17 @@ require('dotenv').config();
 const db = require("./db/connection")
 const User = require("./models/user")
 
-app.get('/', (req, res) => {
-  res.send('Server is running!');
-});
-
-
-const redis = require('redis');
-const client = redis.createClient({
-  password: process.env.REDIS_PASSWORD,
-  socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT
-  }
-});
-client.on('error', (err) => {
-  console.log('Redis error: ' + err);
-});
-
 const WebSocket = require('ws');
+const { hash } = require('crypto');
+
 const server = app.listen(port, () => {
-  client.connect().then(() => {
-    console.log(`Connected to Redis`);
-  });
   db.connectToServer((err) => {
     if (err) console.log(err);
     else console.log(`Connected to MongoDB`);
   });
   console.log(`Server listening at http://localhost:${port}`);
 });
+
 const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
   console.log('WebSocket connected');
@@ -74,6 +57,15 @@ const updateELO = (winner, loser) => {
   loser.losses++;
 };
 
+const hashStringToInt = (str) => {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    return Math.abs(hash) % 10;
+}
+
+
 // {
 //   roomId: {
 //     members: [p1, p2],
@@ -95,6 +87,7 @@ wss.on('connection', (ws) => {
   console.log('Client connected');
   ws.on('message', (message) => {
     const msg = JSON.parse(message);
+    console.log(msg);
 
     if (msg.status === 'create-room') {
       const roomId = generateCode();
@@ -224,4 +217,8 @@ wss.on('connection', (ws) => {
       }
     });
   });
+});
+
+app.get('/', (req, res) => {
+  res.send('Server is running!');
 });
