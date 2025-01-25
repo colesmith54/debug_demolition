@@ -11,9 +11,13 @@ require('dotenv').config();
 const db = require("./db/connection")
 const User = require("./models/user")
 
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
+
 const redis = require('redis');
 const client = redis.createClient({
-  password: rocess.env.REDIS_PASSWORD,
+  password: process.env.REDIS_PASSWORD,
   socket: {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT
@@ -64,7 +68,7 @@ const updateELO = (winner, loser) => {
 //     finished: bool
 //   }
 // }
-let rooms = Map();
+let rooms = new Map();
 
 class Player {
   constructor(ws, elo, username, wins, losses) {
