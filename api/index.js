@@ -120,7 +120,10 @@ wss.on('connection', async (ws) => {
     if (msg.status === 'join-room') {
       const roomId = msg.roomId;
       if (!rooms.has(roomId) || rooms.get(roomId).length >= 2 || (rooms.get(roomId).members[0].username === msg.username && msg.username !== '')) {
-        console.log("Room not found or full");
+        if(!rooms.has(roomId)) console.log("dsfjaklfda");
+        else if(rooms.get(roomId).members.length >= 2) console.log("Room full");
+        else if(rooms.get(roomId).members[0].username === msg.username && msg.username !== '') console.log("Username already taken");
+        ws.send(JSON.stringify({ status: 'room-not-found' }));
         return;
       }
       rooms.get(roomId).members.push(new Player(ws, msg.elo, msg.username, msg.wins, msg.losses));
