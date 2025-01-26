@@ -14,7 +14,6 @@ def main():
     args = sys.argv
 
     problem_id = int(args[1])
-
     code = args[2]
     code = header + code
 
