@@ -43,7 +43,7 @@ const Room = () => {
       <div style={styles.header}>
         <h2>Room ID: {roomId}</h2>
         <h4>Player 1: {player1 || 'Waiting...'}</h4>
-        <h4>Player 2: {player2 || 'Waiting for player...'}</h4>
+        <h4>Player 2: {player2 || 'Waiting...'}</h4>
       </div>
 
       {/* Draggable Split Panels */}
