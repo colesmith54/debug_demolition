@@ -10,7 +10,8 @@ export const WebSocketProvider = ({ children }) => {
   const [problemHtml, setProblemHtml] = useState(null);
   const [initialCode, setInitialCode] = useState(null);
   const [hasNavigated, setHasNavigated] = useState(false);
-  const navigate = useNavigate(); // Hook to navigate
+  const navigate = useNavigate();
+  const [alert, setAlert] = useState(null); 
 
   useEffect(() => {
     socketRef.current = new WebSocket('ws://localhost:5000');
@@ -45,7 +46,7 @@ export const WebSocketProvider = ({ children }) => {
         if (msg.status === 'room-created' && msg.roomId) {
           setRoomId(msg.roomId);
         } else if (msg.status === 'game-start') {
-          setProblemHtml(msg.problemHtml);
+          setProblemHtml(msg.problem_description);
           setInitialCode(msg.initialCode);
           setHasNavigated(true);
           navigate('/room');
@@ -53,6 +54,13 @@ export const WebSocketProvider = ({ children }) => {
           navigate('/');
         } else if (msg.status === 'game-lost') {
           navigate('/');
+        } else if(msg.status === 'game-tie') {
+          navigate('/');
+        } else if(msg.status === 'code-incorrect') {
+          console.log("Code is incorrect. Please try again.");
+          setAlert("Code is incorrect. Please try again.");
+        } else {
+          console.error('Invalid message:', msg.status);
         }
       } catch (err) {
         console.error('Invalid JSON:', err);
@@ -74,7 +82,7 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
-    <WebSocketContext.Provider value={{ sendMessage, roomId, messages, problemHtml, initialCode, setHasNavigated }}>
+    <WebSocketContext.Provider value={{ sendMessage, roomId, setRoomId, messages, problemHtml, initialCode, setHasNavigated }}>
       {children}
     </WebSocketContext.Provider>
   );

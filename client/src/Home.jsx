@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import {Container, Toolbar, Typography} from "@mui/material";
 
 function Home() {
-  const { sendMessage, roomId, messages } = useContext(WebSocketContext);
+  const { sendMessage, roomId, setRoomId, messages } = useContext(WebSocketContext);
   const [username, setUsername] = useState('');
   const [elo, setElo] = useState('1000');
   const [wins, setWins] = useState('0');
@@ -59,31 +59,10 @@ function Home() {
       losses: Number(losses)
     };
     logMessage('Client -> WS: ' + JSON.stringify(payload));
+    setRoomId(roomIdInput);
     sendMessage(payload);
   };
 
-  const endGame = (e) => {
-    e.preventDefault();
-    const payload = {
-      status: 'game-end',
-      roomId,
-      result: gameResult
-    };
-    logMessage('Client -> WS: ' + JSON.stringify(payload));
-    sendMessage(payload);
-  };
-
-  const submitCode = (e) => {
-    e.preventDefault();
-    const payload = {
-      status: 'code-submission',
-      roomId,
-      code
-    };
-    logMessage('Client -> WS: ' + JSON.stringify(payload));
-    sendMessage(payload);
-  };
-  
   return (
     <div>
       {/*<Box>*/}
