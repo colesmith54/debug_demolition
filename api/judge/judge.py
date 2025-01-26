@@ -14,21 +14,10 @@ def main():
     args = sys.argv
 
     problem_id = int(args[1])
-
-    test_code = '''
-def TwoSum(nums: List[int], target: int) -> List[int]:
-    n = len(nums)
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            if nums[i] + nums[j] == target:
-                return [i, j]
-    return [-1, -1]
-    '''
-
     code = args[2]
     code = header + code
 
-    df = pd.read_csv('problem_test_cases.csv')
+    df = pd.read_csv('./problem_test_cases.csv')
     problems = pd.read_csv('../assets/problems.csv')
     problem_function_name = problems[problems['id'] == problem_id]['problem_function'].iloc[0]
 
