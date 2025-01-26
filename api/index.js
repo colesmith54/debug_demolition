@@ -35,7 +35,6 @@ const server = app.listen(port, () => {
 });
 
 const wss = new WebSocket.Server({ server });
-
 wss.on('error', (err) => {
   console.error('WebSocket error:', err);
 });
@@ -168,11 +167,7 @@ wss.on('connection', async (ws) => {
     }
 
     if (msg.status === 'code-submission') {
-      console.log("thingssssss");
-
-      const [roomId, room] = [...rooms].find(([id, room]) =>
-        room.members.some((p) => p.ws === ws)
-      ) || [];
+      const roomId = msg.roomId;
       const player = room ? room.members.find((p) => p.ws === ws) : null;
       
       console.log("things");
