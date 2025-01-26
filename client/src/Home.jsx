@@ -14,31 +14,43 @@ function Home() {
   const [wins, setWins] = useState('0');
   const [losses, setLosses] = useState('0');
   const [roomIdInput, setRoomIdInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const createRoom = (e) => {
     e.preventDefault();
-    const payload = {
+    setIsLoading(true); 
+    try {
+      const payload = {
       status: 'create-room',
       username: username.current,
       elo: Number(elo),
-      wins: Number(wins),
-      losses: Number(losses)
-    };
-    sendMessage(payload);
+        wins: Number(wins),
+        losses: Number(losses)
+      };
+      sendMessage(payload);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const joinRoom = (e) => {
     e.preventDefault();
-    const payload = {
-      status: 'join-room',
-      roomId: roomIdInput,
-      username: username.current,
-      elo: Number(elo),
-      wins: Number(wins),
-      losses: Number(losses)
-    };
-    setRoomId(roomIdInput);
-    sendMessage(payload);
+    try {
+      setIsLoading(true);
+      const payload = {
+        status: 'join-room',
+        roomId: roomIdInput,
+        username: username.current,
+        elo: Number(elo),
+        wins: Number(wins),
+        losses: Number(losses)
+      };
+      setRoomId(roomIdInput);
+      sendMessage(payload);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const leaveRoom = () => {
@@ -131,6 +143,11 @@ function Home() {
             )}
           </div>
       </div>
+      {isLoading && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <div className="spinner" />
+        </div>
+      )}
 
       <hr />
       <h2>Log</h2>

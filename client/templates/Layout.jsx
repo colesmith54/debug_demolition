@@ -17,17 +17,20 @@ import {useContext} from "react";
 import ColorModeSelect from "../shared-theme/ColorModeSelect";
 import CssBaseline from "@mui/material/CssBaseline";
 import AppTheme from "../shared-theme/AppTheme";
+import { useNavigate } from 'react-router-dom';
 
 const Layout = () => {
   const {username} = useContext(AuthContext);
+  const navigate = useNavigate();
 
+  const handleClick = () => { navigate('/'); };
   return (
     <Box>
       <AppTheme>
         <CssBaseline enableColorScheme />
         <AppBar position="static">
           <Toolbar sx={{ justifyContent: 'flex-start' }}>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} onClick={handleClick}>
               Coding Battles!
             </Typography>
 
