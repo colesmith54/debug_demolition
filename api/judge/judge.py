@@ -32,7 +32,12 @@ def main():
         out = test_case[1]['output']
         final_code = code + '\n' + inp + '\n' + f'output = {problem_function_name}(*input)'
         context = {}
-        exec(final_code, context)
+        try:
+            exec(final_code, context)
+        except Exception as e:
+            results['failed'].append({'input': inp, 'expected': out, 'output': "Syntax or runtime error"})
+            continue
+
         expected = out.strip().replace('\n', '').replace(' ', '').lower()
         output = str(context['output']).strip().replace('\n', '').replace(' ', '').lower()
         if expected == output:

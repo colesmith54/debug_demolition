@@ -214,48 +214,57 @@ wss.on('connection', async (ws) => {
 
       console.log(`Executing command: ${command}`);
 
-      setTimeout(() => {
-        exec(command, { cwd: './judge/' }, async (error, stdout, stderr) => {
-          if (error) {
-            console.error(`exec error: ${stderr}`);
-            return;
-          }
-          
-          console.log("things1", error, stdout, stderr);
-          const data = JSON.parse(stdout);
-          // const outputLines = stdout.split('\n');
-          // const status = outputLines[0];
-          const status = data['failed'].length === 0 ? 'accepted' : 'rejected';
-          // const output = outputLines.slice(1).join('\n');
-          const output = data
+      const execWithTimeout = (command, options, timeout) => {
+        return new Promise((resolve, reject) => {
+          const process = exec(command, options, (error, stdout, stderr) => {
+            if (error) {
+              reject(new Error(`exec error: ${stderr}`));
+              return;
+            }
+            resolve({ stdout, stderr });
+          });
 
-          console.log("things2", error, stdout, stderr);
+          const timeoutId = setTimeout(() => {
+            process.kill();
+            reject(new Error(`Command timed out after ${timeout}ms`));
+          }, timeout);
+
+          process.on('exit', () => clearTimeout(timeoutId));
+        });
+      };
+
+      setTimeout(async () => {
+        try {
+          const { stdout, stderr } = await execWithTimeout(command, { cwd: './judge/' }, 5000);
+          const data = JSON.parse(stdout);
+          const status = data['failed'].length === 0 ? 'accepted' : 'rejected';
+          const output = data;
+
+
           if (status === 'accepted') {
             const winner = player;
             const loser = rooms.get(roomId).members.find((p) => p.ws !== ws);
-  
-            console.log("things3", error, stdout, stderr);
+
             updateELO(winner, loser);
-  
+
             try {
               await User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
               await User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
             } catch (err) {
               console.log(err);
             }
-  
-            console.log("things4", error, stdout, stderr);
+
             winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
             loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
-  
-            console.log("things", error, stdout, stderr);
-            console.log("Deleting room2!")
             rooms.delete(roomId);
           } else {
-           player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
+            player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
           }
-        });
-      }, 2000);
+        } catch (err) {
+          console.log('Error:', err.message);
+          player.ws.send(JSON.stringify({ status: 'code-incorrect', output: 'Time Limit Exceeded' }));
+        }
+      }, 5000);
     }
   });
 

@@ -136,62 +136,65 @@ const Room = () => {
             style={styles.problemDetails}
             dangerouslySetInnerHTML={{ __html: problemHtml }}
           />
-          {judgeResult.current !== null &&
-            <Box
-              sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: 224 }}
-            >
-              <Tabs
-                orientation="vertical"
-                variant="scrollable"
-                value={value}
-                onChange={handleChange}
-                aria-label="Vertical tabs example"
-                sx={{ borderRight: 1, borderColor: 'divider' }}
+          {judgeResult.current !== null && (
+            judgeResult.current === 'Time Limit Exceeded' ? 
+              <h3>Time Limit Exceeded</h3> :
+              <>
+              <Box
+                sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: 224 }}
               >
+                <Tabs
+                  orientation="vertical"
+                  variant="scrollable"
+                  value={value}
+                  onChange={handleChange}
+                  aria-label="Vertical tabs example"
+                  sx={{ borderRight: 1, borderColor: 'divider' }}
+                >
+                  {
+                    judgeResult.current['passed'].map((p, i) => (
+                      <Tab sx={{'color': 'green'}} key={i} label={'Test Case ' + (i + 1).toString()} {...a11yProps(i)} />
+                    ))
+                  }
+                  {
+                    judgeResult.current['failed'].map((p, i) => (
+                      <Tab sx={{'color': 'red'}} key={i + judgeResult.current['passed'].length} label={'Test Case ' + (i + 1 + judgeResult.current['passed'].length).toString()} {...a11yProps(i + judgeResult.current['passed'].length)} />
+                    ))
+                  }
+                </Tabs>
                 {
                   judgeResult.current['passed'].map((p, i) => (
-                    <Tab sx={{'color': 'green'}} key={i} label={'Test Case ' + (i + 1).toString()} {...a11yProps(i)} />
+                    <TabPanel key={i} value={value} index={i}>
+                      <div>
+                        {p['input']}
+                      </div>
+                      <div>
+                        {"Expected output: " + p['expected']}
+                      </div>
+                      <div>
+                        {"Actual output: " + p['output']}
+                      </div>
+                    </TabPanel>
                   ))
                 }
                 {
                   judgeResult.current['failed'].map((p, i) => (
-                    <Tab sx={{'color': 'red'}} key={i + judgeResult.current['passed'].length} label={'Test Case ' + (i + 1 + judgeResult.current['passed'].length).toString()} {...a11yProps(i + judgeResult.current['passed'].length)} />
+                    <TabPanel key={i + judgeResult.current['passed'].length} value={value} index={i + judgeResult.current['passed'].length}>
+                      <div>
+                        {p['input']}
+                      </div>
+                      <div>
+                        {"Expected output: " + p['expected']}
+                      </div>
+                      <div>
+                        {"Actual output: " + p['output']}
+                      </div>
+                    </TabPanel>
                   ))
                 }
-              </Tabs>
-              {
-                judgeResult.current['passed'].map((p, i) => (
-                  <TabPanel key={i} value={value} index={i}>
-                    <div>
-                      {p['input']}
-                    </div>
-                    <div>
-                      {"Expected output: " + p['expected']}
-                    </div>
-                    <div>
-                      {"Actual output: " + p['output']}
-                    </div>
-                  </TabPanel>
-                ))
-              }
-              {
-                judgeResult.current['failed'].map((p, i) => (
-                  <TabPanel key={i + judgeResult.current['passed'].length} value={value} index={i + judgeResult.current['passed'].length}>
-                    <div>
-                      {p['input']}
-                    </div>
-                    <div>
-                      {"Expected output: " + p['expected']}
-                    </div>
-                    <div>
-                      {"Actual output: " + p['output']}
-                    </div>
-                  </TabPanel>
-                ))
-              }
-            </Box>
-          }
-
+              </Box>
+            </>
+          )}
         </div>
 
         <div style={styles.rightPanel}>

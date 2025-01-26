@@ -154,9 +154,9 @@ function Home() {
             } else if (parsed.status === 'game-start') {
               displayMessage = `Game Started in Room ID: ${parsed.roomId}`;
             } else if (parsed.status === 'game-won') {
-              displayMessage = `You won! New ELO: ${elo}`;
+              displayMessage = `You won! New ELO: ${parsed.elo}`;
             } else if (parsed.status === 'game-lost') {
-              displayMessage = `You lost! New ELO: ${elo}`;
+              displayMessage = `You lost! New ELO: ${parsed.elo}`;
             } else if (parsed.status === 'room-updated') {
               displayMessage = `Opponent found! Joining...`;
             } else if (parsed.status === 'code-incorrect') {
