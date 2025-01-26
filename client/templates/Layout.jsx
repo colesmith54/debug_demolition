@@ -30,10 +30,18 @@ const Layout = () => {
         <CssBaseline enableColorScheme />
         <AppBar position="static">
           <Toolbar sx={{ justifyContent: 'flex-start' }}>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} onClick={handleClick}>
-              Coding Battles!
-            </Typography>
-
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              flexGrow: 1, 
+              cursor: 'pointer', 
+              textDecoration: 'underline' 
+            }} 
+            onClick={handleClick}
+          >
+            Debug Demolition
+          </Typography>
             {
               token.current === null &&
               <Button color="black" href="/login">Login</Button>
