@@ -5,17 +5,11 @@ import Editor from '@monaco-editor/react';
 import Split from 'react-split';
 
 const Room = () => {
-  const { problemHtml, initialCode, sendMessage, roomId, player1, player2 } = useContext(WebSocketContext);
+  const { problemHtml, initialCode, sendMessage, roomId, player1, player2, setHasNavigated } = useContext(WebSocketContext);
   const [code, setCode] = useState(initialCode || '');
 
   useEffect(() => {
-    setCode((prevCode) => {
-      if (!prevCode) return initialCode;
-      while (prevCode && prevCode.endsWith('`')) prevCode = prevCode.slice(0, -1);
-      while (prevCode && prevCode.startsWith('`')) prevCode = prevCode.slice(1);
-      while (prevCode && prevCode.startsWith('python')) prevCode = prevCode.slice(6);
-      return prevCode;
-    });
+    setHasNavigated(false);
   }, [initialCode]);
 
   const editorOptions = {

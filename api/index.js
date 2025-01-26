@@ -156,8 +156,6 @@ wss.on('connection', async (ws) => {
                 initialCode: incorrect_code,
               }));
             });
-
-            this.destroy();
           }
         })
         .on('end', () => {
