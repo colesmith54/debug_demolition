@@ -9,6 +9,14 @@ const Room = () => {
   const [code, setCode] = useState(initialCode || '');
 
   useEffect(() => {
+    setCode(prevCode => {
+      if (!prevCode) return initialCode;
+      while (prevCode && prevCode.endsWith('`')) prevCode = prevCode.slice(0, -1);
+      while (prevCode && prevCode.startsWith('`')) prevCode = prevCode.slice(1);
+      while (prevCode && prevCode.startsWith('python')) prevCode = prevCode.slice(6);
+      while (prevCode && prevCode.startsWith('\n')) prevCode = prevCode.slice(1);
+      return prevCode;
+    });
     setHasNavigated(false);
   }, [initialCode]);
 
@@ -44,7 +52,7 @@ const Room = () => {
         minSize={100}
         gutterSize={10}
         direction="horizontal"
-        style={{ height: 'calc(100vh - 100px)' }} // Adjust to fit below the header
+        style={{ height: 'calc(100vh - 100px)' }}
       >
         {/* Left Panel */}
         <div style={styles.leftPanel}>
