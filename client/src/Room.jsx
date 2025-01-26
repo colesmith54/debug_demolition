@@ -45,15 +45,6 @@ const Room = () => {
     }
   };
 
-  const handleSubmitCode = async () => {
-    try {
-      console.log("1");
-      sendMessage({ status: 'code-submission' });
-    } catch (error) {
-      console.error('Error submitting the code:', error);
-    }
-  };
-
   return (
     <div>
       <div style={styles.header}>
@@ -67,9 +58,6 @@ const Room = () => {
           <div style={styles.buttonContainer}>
             <button style={styles.runButton} onClick={handleRunCode}>
               Run
-            </button>
-            <button style={styles.submitButton} onClick={handleSubmitCode}>
-              Submit
             </button>
           </div>
           <div

@@ -63,11 +63,12 @@ const updateELO = (winner, loser) => {
 };
 
 const hashStringToInt = (str) => {
-    let hash = 5381;
+    let hash = 0;
+    const prime = 31;
     for (let i = 0; i < str.length; i++) {
-      hash = (hash * 33) ^ str.charCodeAt(i);
+      hash = (hash * prime) + str.charCodeAt(i);
     }
-    return Math.abs(hash) % 10;
+    return Math.abs(hash) % 9;
 }
 
 
@@ -93,28 +94,10 @@ wss.on('connection', async (ws) => {
 
   ws.on('message', async (message) => {
     console.log(`Raw message received: ${message}`);
-
-    let parsedMessage;
-    try {
-      parsedMessage = JSON.parse(message);
-    } catch (error) {
-      console.error('Failed to parse message:', error);
-      ws.send('Error: Invalid message format');
-      return;
-    }
-
-    if (parsedMessage.status === 'test-message' && parsedMessage.content === 'hello') {
-      ws.send('Received. Hello!');
-    } else {
-      ws.send(JSON.stringify({ status: 'error', message: 'c' }));
-    }
-
     const msg = JSON.parse(message);
 
     if (msg.status === 'create-room') {
-
       const roomId = generateCode();
-      console.log(`Room created with fsaafas: ${roomId}`);
       rooms.set(roomId, {
         members: [new Player(ws, msg.elo, msg.username, msg.wins, msg.losses)],
         finished: false
@@ -140,12 +123,16 @@ wss.on('connection', async (ws) => {
       fs.createReadStream('./assets/problems.csv')
         .pipe(csv())
         .on('data', async (row) => {
+          console.log(Number(row.id));
+          console.log(problemId);
           if (Number(row.id) === problemId) {
             const title = row.title;
             const problemDescription = row.html;
             const template = row.function_header;
 
+            console.log("YES");
             const incorrect_code = await gen_incorrect_code(row.html, template)
+            console.log("2x YES");
 
             rooms.get(roomId).members.forEach((p) => {
               p.ws.send(JSON.stringify({
