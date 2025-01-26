@@ -32,6 +32,7 @@ def main():
         out = test_case[1]['output']
         final_code = code + '\n' + inp + '\n' + f'output = {problem_function_name}(*input)'
         context = {}
+        print(final_code)
         exec(final_code, context)
         expected = out.strip().replace('\n', '').replace(' ', '').lower()
         output = str(context['output']).strip().replace('\n', '').replace(' ', '').lower()
