@@ -21,10 +21,13 @@ const Room = () => {
   console.log('Initial Code:', initialCode);
   console.log('Problem HTML:', problemHtml);
 
-  // Mark that we've navigated to /room
   useEffect(() => {
+    setCode((prev) => {
+      if (prev && typeof prev === 'string' && prev.startsWith('`')) return prev.slice(10, -4);
+      else return prev;
+    })
     setHasNavigated(false);
-  }, [initialCode, setHasNavigated]);
+  }, [initialCode]);
 
   // Monaco Editor settings
   const editorOptions = {
