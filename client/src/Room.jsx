@@ -2,24 +2,31 @@ import React, { useState, useEffect, useContext } from 'react';
 import { WebSocketContext } from './WebSocketContext';
 import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
-import Split from 'react-split';
 
 const Room = () => {
-  const { problemHtml, initialCode, sendMessage, roomId, player1, player2, setHasNavigated } = useContext(WebSocketContext);
+  const {
+    problemHtml,
+    initialCode,
+    sendMessage,
+    roomId,
+    player1,
+    player2,
+    setHasNavigated,
+  } = useContext(WebSocketContext);
+
+  // For the code editor
   const [code, setCode] = useState(initialCode || '');
 
-  useEffect(() => {
-    setCode(prevCode => {
-      if (!prevCode) return initialCode;
-      while (prevCode && prevCode.endsWith('`')) prevCode = prevCode.slice(0, -1);
-      while (prevCode && prevCode.startsWith('`')) prevCode = prevCode.slice(1);
-      while (prevCode && prevCode.startsWith('python')) prevCode = prevCode.slice(6);
-      while (prevCode && prevCode.startsWith('\n')) prevCode = prevCode.slice(1);
-      return prevCode;
-    });
-    setHasNavigated(false);
-  }, [initialCode]);
+  console.log('Room:', roomId, 'Player1:', player1, 'Player2:', player2);
+  console.log('Initial Code:', initialCode);
+  console.log('Problem HTML:', problemHtml);
 
+  // Mark that we've navigated to /room
+  useEffect(() => {
+    setHasNavigated(false);
+  }, [initialCode, setHasNavigated]);
+
+  // Monaco Editor settings
   const editorOptions = {
     selectOnLineNumbers: true,
     minimap: { enabled: false },
@@ -27,9 +34,10 @@ const Room = () => {
     theme: 'vs-light',
   };
 
+  // Run/Submit code
   const handleRunCode = async () => {
     try {
-      sendMessage(JSON.stringify({ status: 'code-submission', code }));
+      sendMessage({ status: 'code-submission', code }); // Using object for clarity
       alert('Code executed successfully');
     } catch (error) {
       console.error('Error running the code', error);
@@ -41,41 +49,36 @@ const Room = () => {
     <div>
       {/* Header Section */}
       <div style={styles.header}>
-        <h2>Room ID: {roomId}</h2>
+        <h2>Room ID: {roomId || 'None'}</h2>
         <h4>Player 1: {player1 || 'Waiting...'}</h4>
         <h4>Player 2: {player2 || 'Waiting...'}</h4>
       </div>
 
-      {/* Draggable Split Panels */}
-      <Split
-        sizes={[50, 50]}
-        minSize={100}
-        gutterSize={10}
-        direction="horizontal"
-        style={{ height: 'calc(100vh - 100px)' }}
-      >
-        {/* Left Panel */}
+      {/* Layout */}
+      <div style={styles.layout}>
+        {/* Problem / Left Section */}
         <div style={styles.leftPanel}>
-        <button onClick={handleRunCode}>
-          Run
-        </button>
+          <button style={styles.runButton} onClick={handleRunCode}>
+            Run
+          </button>
           <div
             style={styles.problemDetails}
             dangerouslySetInnerHTML={{ __html: problemHtml }}
           />
         </div>
 
-        {/* Right Panel */}
+        {/* Editor / Right Section */}
         <div style={styles.rightPanel}>
           <Editor
-            defaultLanguage={'python'}
+            defaultLanguage="python"
             value={code}
             onChange={(newValue) => setCode(newValue)}
             options={editorOptions}
             height="100%"
+            width="100%"
           />
         </div>
-      </Split>
+      </div>
     </div>
   );
 };
@@ -87,11 +90,29 @@ const styles = {
     color: 'white',
     textAlign: 'center',
   },
+  layout: {
+    display: 'flex',
+    height: 'calc(100vh - 100px)', // Subtract header height
+    overflow: 'hidden',
+  },
   leftPanel: {
+    flex: '1',
     padding: '20px',
     backgroundColor: 'white',
     overflowY: 'auto',
     borderRight: '2px solid #ddd',
+    position: 'relative',
+  },
+  runButton: {
+    backgroundColor: '#007bff',
+    color: 'white',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    border: 'none',
+    outline: 'none',
+    marginBottom: '20px',
   },
   problemDetails: {
     fontSize: '16px',
@@ -99,9 +120,9 @@ const styles = {
     color: '#333',
   },
   rightPanel: {
+    flex: '1',
     padding: '10px',
     backgroundColor: '#f5f5f5',
-    height: '100%',
   },
 };
 

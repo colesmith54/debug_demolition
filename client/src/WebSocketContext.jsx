@@ -45,7 +45,7 @@ export const WebSocketProvider = ({ children }) => {
         if (msg.status === 'room-created' && msg.roomId) {
           setRoomId(msg.roomId);
         } else if (msg.status === 'game-start') {
-          setProblemHtml(msg.problemHtml);
+          setProblemHtml(msg.problem_description);
           setInitialCode(msg.initialCode);
           setHasNavigated(true);
           navigate('/room');
