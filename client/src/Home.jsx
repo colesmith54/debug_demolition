@@ -68,7 +68,7 @@ function Home() {
       <div style={{ display: 'flex', gap: '40px', justifyContent: 'center' }}>
         <form
             onSubmit={createRoom}
-            style={{ display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
+            style={{ width: '150px', alignItems: 'center',  display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
           >
             <h4>Create Room</h4>
             <button
@@ -89,7 +89,7 @@ function Home() {
 
           <form
             onSubmit={joinRoom}
-            style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
+            style={{ width: '150px', alignItems: 'center', display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
           >
             <h4>Join Room</h4>
             <input
@@ -115,7 +115,7 @@ function Home() {
             </button>
           </form>
 
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <div style={{ width: '150px', alignItems: 'center', marginTop: '20px', textAlign: 'center' }}>
           {roomId ? (
             <p>You are in room {roomId} with 1/2 capacity</p>
           ) : (
