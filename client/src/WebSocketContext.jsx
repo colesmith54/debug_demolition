@@ -10,7 +10,7 @@ export const WebSocketProvider = ({ children }) => {
   const [problemHtml, setProblemHtml] = useState(null);
   const [initialCode, setInitialCode] = useState(null);
   const [hasNavigated, setHasNavigated] = useState(false);
-  const navigate = useNavigate(); // Hook to navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     socketRef.current = new WebSocket('ws://localhost:5000');
@@ -74,7 +74,7 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
-    <WebSocketContext.Provider value={{ sendMessage, roomId, messages, problemHtml, initialCode, setHasNavigated }}>
+    <WebSocketContext.Provider value={{ sendMessage, roomId, setRoomId, messages, problemHtml, initialCode, setHasNavigated }}>
       {children}
     </WebSocketContext.Provider>
   );

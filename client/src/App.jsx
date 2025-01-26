@@ -8,7 +8,7 @@ import Layout from "../templates/Layout.jsx";
 import Box from "@mui/material/Box";
 import Register from "./Register.jsx";
 import Login from "./Login.jsx";
-import {AuthProvider} from "./AuthContext.jsx";
+import { AuthProvider } from "./AuthContext.jsx";
 
 
 function App() {
