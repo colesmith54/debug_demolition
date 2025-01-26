@@ -3,7 +3,6 @@ const {OpenAI} = require('openai');
 const fs = require('fs');
 require('dotenv').config()
 
-const problems_file = './assets/problems.csv';
 const prompts_file = './assets/prompts.txt';
 
 const openai = new OpenAI({

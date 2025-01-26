@@ -2,13 +2,11 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WebSocketContext } from './WebSocketContext';
+import Box from '@mui/material/Box';
+import {Container, Toolbar, Typography} from "@mui/material";
 
 function Home() {
   const { sendMessage, roomId, messages } = useContext(WebSocketContext);
-  const [registerUsername, setRegisterUsername] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
-  const [loginUsername, setLoginUsername] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
   const [username, setUsername] = useState('');
   const [elo, setElo] = useState('1000');
   const [wins, setWins] = useState('0');
@@ -85,109 +83,12 @@ function Home() {
     logMessage('Client -> WS: ' + JSON.stringify(payload));
     sendMessage(payload);
   };
-
-  const register = async (username, password) => {
-    try {
-      const response = await fetch('http://localhost:5000/register', { 
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify({ username, password }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Register failed: ${errorData.message || response.status}`);
-      }
-  
-      const data = await response.json(); 
-      console.log('Register successful:', data); 
-      logMessage('Registration successful!');
-    } catch (error) {
-      console.error('Register failed:', error.message); 
-      logMessage(`Register failed: ${error.message}`);
-    }
-  };    
-
-  const login = async (username, password) => {
-    try {
-      const response = await fetch('http://localhost:5000/login', { 
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify({ username, password }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Login failed: ${errorData.message || response.status}`);
-      }
-  
-      const data = await response.json(); 
-      setUsername(data.username);
-      console.log('Login successful:', data); 
-      logMessage(`Logged in as ${data.username}`);
-    } catch (error) {
-      console.error('Login failed:', error.message); 
-      logMessage(`Login failed: ${error.message}`);
-    }
-  };
   
   return (
     <div>
-      <h1>{username ? `Welcome, ${username}!` : 'Please log in or register'}</h1>
-      
-      {/* Registration Form */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          register(registerUsername, registerPassword);
-        }}
-      >
-        <h4>Register</h4>
-        <input
-          type="text"
-          placeholder="Username"
-          value={registerUsername}
-          onChange={(e) => setRegisterUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={registerPassword}
-          onChange={(e) => setRegisterPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Register</button>
-      </form>
-
-      {/* Login Form */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          login(loginUsername, loginPassword);
-        }}
-      >
-        <h4>Login</h4>
-        <input
-          type="text"
-          placeholder="Username"
-          value={loginUsername}
-          onChange={(e) => setLoginUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={loginPassword}
-          onChange={(e) => setLoginPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
+      {/*<Box>*/}
+      {/*  <Typography variant="h6" gutterBottom>{username ? `Welcome, ${username}!` : 'Please log in or register'}</Typography>*/}
+      {/*</Box>*/}
 
       {/* WebSocket Test */}
       <h1>WebSocket & Routes Test</h1>
@@ -230,12 +131,12 @@ function Home() {
 
       <form onSubmit={joinRoom}>
         <h4>Join Room</h4>
-        <input 
+        <input
           type="text"
-          placeholder="Room ID" 
-          value={roomIdInput} 
-          onChange={(e) => setRoomIdInput(e.target.value)} 
-          required 
+          placeholder="Room ID"
+          value={roomIdInput}
+          onChange={(e) => setRoomIdInput(e.target.value)}
+          required
         />
         <button type="submit">Join</button>
       </form>

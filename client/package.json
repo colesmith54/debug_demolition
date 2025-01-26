@@ -10,10 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/roboto": "^5.1.1",
+    "@monaco-editor/react": "^4.6.0",
+    "@mui/material": "^6.4.1",
     "cors": "^2.8.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@monaco-editor/react": "^4.6.0",
     "react-monaco-editor": "^0.57.0",
     "react-router-dom": "^7.1.3"
   },
