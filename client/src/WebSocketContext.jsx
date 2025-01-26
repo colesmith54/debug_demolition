@@ -11,6 +11,10 @@ export const WebSocketProvider = ({ children }) => {
   const [problemHtml, setProblemHtml] = useState(null);
   const [initialCode, setInitialCode] = useState(null);
   const [hasNavigated, setHasNavigated] = useState(false);
+  const [elo, setElo] = useState(1000);
+  const [eloOther, setEloOther] = useState(1000);
+  const [wins, setWins] = useState(0);
+  const [losses, setLosses] = useState(0);
   const navigate = useNavigate();
   const [alert, setAlert] = useState(null);
   const opponent = useRef(null);
@@ -47,47 +51,52 @@ export const WebSocketProvider = ({ children }) => {
           console.log('Member count:', msg.memberCount);
           setMemberCount(msg.memberCount);
         }
-        if (msg.status === 'code-submission') {
-          setIsLoading(true);
-        }
         if (msg.status === 'room-created' && msg.roomId) {
           setMemberCount(1);
           setRoomId(msg.roomId);
         } else if (msg.status === 'leave-room') {
           setRoomId(null);
           setMemberCount(0);
+          setIsLoading(false);
           console.log('Room left');
         } else if (msg.status === 'game-start') {
+          setHasNavigated(true);
           setProblemHtml(msg.problem_description);
           setInitialCode(msg.initialCode);
-          setHasNavigated(true);
+          setEloOther(msg.eloOther);
           opponent.current = msg.opponent;
           navigate('/room');
         } else if (msg.status === 'game-won') {
           setAlert('You won the game. Congratulations!');
-          setIsLoading(false);
+          setWins((prev) => prev + 1);
+          setElo(msg.elo);
+          setRoomId(null);
+          judgeResult.current = null;
           navigate('/');
         } else if (msg.status === 'game-lost') {
           setAlert('You lost the game. Better luck next time!');
-          setIsLoading(false);
+          setLosses((prev) => prev + 1);
+          setElo(msg.elo);
+          setRoomId(null);
+          judgeResult.current = null;
           navigate('/');
         } else if (msg.status === 'game-tie') {
           setAlert('The game ended in a tie. Better luck next time!');
-          setIsLoading(false);
+          setRoomId(null);
+          judgeResult.current = null;
           navigate('/');
         } else if (msg.status === 'code-incorrect') {
           console.log('Code is incorrect. Please try again.');
           setAlert('Code is incorrect. Please try again.');
-          setIsLoading(false);
           console.log('output', msg.output)
           judgeResult.current = msg.output
         } else {
-          setIsLoading(false);
           console.error('Invalid message:', msg.status);
         }
       } catch (err) {
         console.error('Invalid JSON:', err);
       }
+      setIsLoading(false);
     };
 
     // Attach the message handler
@@ -121,11 +130,17 @@ export const WebSocketProvider = ({ children }) => {
         memberCount,
         problemHtml,
         initialCode,
+        hasNavigated,
         setHasNavigated,
         opponent,
         alert,
         judgeResult,
-        isLoading
+        isLoading,
+        setIsLoading,
+        elo,
+        eloOther,
+        wins,
+        losses,
       }}
     >
       {children}

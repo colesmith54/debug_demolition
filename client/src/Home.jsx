@@ -1,18 +1,11 @@
 // src/Home.jsx
-import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
 import { WebSocketContext } from './WebSocketContext';
-import Box from '@mui/material/Box';
-import {Container, Toolbar, Typography} from "@mui/material";
-import {AuthContext} from "./AuthContext.jsx";
+import { AuthContext } from "./AuthContext.jsx";
 
 function Home() {
-  const { sendMessage, roomId, setRoomId, messages, memberCount, alert } = useContext(WebSocketContext);
-  const {username} = useContext(AuthContext);
-
-  const [elo, setElo] = useState('1000');
-  const [wins, setWins] = useState('0');
-  const [losses, setLosses] = useState('0');
+  const { elo, wins, losses, sendMessage, roomId, setRoomId, messages, memberCount, alert } = useContext(WebSocketContext);
+  const { username } = useContext(AuthContext);
   const [roomIdInput, setRoomIdInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,9 +35,9 @@ function Home() {
         status: 'join-room',
         roomId: roomIdInput,
         username: username.current,
-        elo: Number(elo),
-        wins: Number(wins),
-        losses: Number(losses)
+        elo: elo,
+        wins: wins,
+        losses: losses
       };
       setRoomId(roomIdInput);
       sendMessage(payload);
@@ -157,9 +150,17 @@ function Home() {
           try {
             const parsed = JSON.parse(msg);
             if (parsed.status === 'room-created') {
-              displayMessage = `Room Created: ID ${parsed.roomId}`;
+              displayMessage = `Room ID Created: ${parsed.roomId}`;
             } else if (parsed.status === 'game-start') {
-              displayMessage = `Game Started in Room: ID ${parsed.roomId}`;
+              displayMessage = `Game Started in Room ID: ${parsed.roomId}`;
+            } else if (parsed.status === 'game-won') {
+              displayMessage = `You won! New ELO: ${elo}`;
+            } else if (parsed.status === 'game-lost') {
+              displayMessage = `You lost! New ELO: ${elo}`;
+            } else if (parsed.status === 'room-updated') {
+              displayMessage = `Opponent found! Joining...`;
+            } else if (parsed.status === 'code-incorrect') {
+              displayMessage = `You submitted incorrect code.`;
             }
           } catch {
             displayMessage = msg;

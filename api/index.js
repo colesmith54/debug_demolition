@@ -169,7 +169,9 @@ wss.on('connection', async (ws) => {
                 title: title,
                 problem_description: problemDescription,
                 initialCode: incorrect_code,
-                opponent: members[1 - i].username
+                opponent: members[1 - i].username,
+                eloOther: members[1 - i].elo,
+                roomId: roomId,
               }))
             })
           }

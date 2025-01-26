@@ -5,9 +5,9 @@ import { WebSocketContext } from './WebSocketContext';
 const RouteGuard = ({ children }) => {
   const { hasNavigated } = useContext(WebSocketContext);
 
-  // if (!hasNavigated) {
-  //   return <Navigate to="/" replace />;
-  // }
+  if (!hasNavigated) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 };

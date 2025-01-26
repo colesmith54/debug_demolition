@@ -8,21 +8,6 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
-
-const style = {
-  py: 0,
-  width: '100%',
-  maxWidth: 360,
-  borderRadius: 2,
-  border: '1px solid',
-  borderColor: 'divider',
-  backgroundColor: 'background.paper',
-};
-
 function a11yProps(index) {
   return {
     id: `vertical-tab-${index}`,
@@ -53,14 +38,16 @@ function TabPanel(props) {
 const Room = () => {
   const {
     isLoading,
+    setIsLoading,
     problemHtml,
     initialCode,
     sendMessage,
     roomId,
     opponent,
-    setHasNavigated,
     alert,
-    judgeResult
+    judgeResult,
+    elo,
+    eloOther,
   } = useContext(WebSocketContext);
 
   const {username} = useContext(AuthContext);
@@ -72,7 +59,7 @@ const Room = () => {
 
 
   const [code, setCode] = useState(initialCode || '');
-  const [timer, setTimer] = useState(300); // 5 minutes in seconds
+  const [timer, setTimer] = useState(300);
 
   useEffect(() => {
     if (timer > 0) {
@@ -85,8 +72,7 @@ const Room = () => {
     setCode((prev) => {
       if (prev && typeof prev === 'string' && prev.startsWith('`')) return prev.slice(10, -4);
       else return prev;
-    })
-    setHasNavigated(false);
+    });
   }, [initialCode]);
 
   const editorOptions = {
@@ -98,6 +84,7 @@ const Room = () => {
 
   const handleRunCode = async () => {
     try {
+      setIsLoading(true);
       sendMessage({ status: 'code-submission', username: username.current, roomId: roomId, code: code });
     } catch (error) {
       console.error('Error running the code:', error);
@@ -122,7 +109,7 @@ const Room = () => {
             {/* Player 1 */}
             <div style={styles.playerContainer}>
               <h3 style={styles.playerName}>{username.current || 'Player 1'}</h3>
-              <p style={styles.playerElo}>{username.current ? `Rating: 1000` : 'Waiting...'}</p>
+              <p style={styles.playerElo}>{username.current ? elo : 'Waiting...'}</p>
             </div>
 
             {/* VS */}
@@ -131,7 +118,7 @@ const Room = () => {
             {/* Player 2 */}
             <div style={styles.playerContainer}>
               <h3 style={styles.playerName}>{opponent.current || 'Player 2'}</h3>
-              <p style={styles.playerElo}>{opponent.current ? `Rating: 1200` : 'Waiting...'}</p>
+              <p style={styles.playerElo}>{opponent.current ? eloOther : 'Waiting...'}</p>
             </div>
           </div>
         </div>
