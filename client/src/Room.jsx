@@ -112,6 +112,19 @@ const styles = {
     backgroundColor: '#f4f4f4',
     borderBottom: '2px solid #ddd',
   },
+  footer: {
+    position: 'absolute',
+    bottom: '0',
+    left: '0',
+    width: '100%', /* Ensure it spans the entire parent */
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '20px',
+    backgroundColor: '#f4f4f4',
+    borderTop: '2px solid #ddd', // Adjust for visibility at the bottom
+  },
+
   roomInfo: {
     display: 'flex',
     flexDirection: 'column',
@@ -196,6 +209,8 @@ const styles = {
     flex: '1',
     padding: '10px',
     backgroundColor: '#f5f5f5',
+    position: 'relative',
+    minHeight: '100vh',
   },
 };
 

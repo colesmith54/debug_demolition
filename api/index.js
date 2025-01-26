@@ -219,10 +219,13 @@ wss.on('connection', async (ws) => {
           }
           
           console.log("things1", error, stdout, stderr);
-          const outputLines = stdout.split('\n');
-          const status = outputLines[0];
-          const output = outputLines.slice(1).join('\n');
-  
+          const data = JSON.parse(stdout);
+          // const outputLines = stdout.split('\n');
+          // const status = outputLines[0];
+          const status = data['failed'].length === 0
+          // const output = outputLines.slice(1).join('\n');
+          const output = data
+
           console.log("things2", error, stdout, stderr);
           if (status === 'accepted') {
             const winner = player;

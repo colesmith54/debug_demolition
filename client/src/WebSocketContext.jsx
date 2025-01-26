@@ -18,6 +18,7 @@ export const WebSocketProvider = ({ children }) => {
 
   // Use a ref to store the WebSocket instance
   const socketRef = useRef(null);
+  const judgeResult = useRef(null);
 
   useEffect(() => {
     // Get the singleton WebSocket instance
@@ -70,6 +71,7 @@ export const WebSocketProvider = ({ children }) => {
         } else if (msg.status === 'code-incorrect') {
           console.log('Code is incorrect. Please try again.');
           setAlert('Code is incorrect. Please try again.');
+          judgeResult.current = msg.output
         } else {
           console.error('Invalid message:', msg.status);
         }
@@ -112,6 +114,7 @@ export const WebSocketProvider = ({ children }) => {
         setHasNavigated,
         opponent,
         alert,
+        judgeResult
       }}
     >
       {children}
