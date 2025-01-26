@@ -15,15 +15,19 @@ function generateRandomLetters(length) {
 
 export const AuthProvider = ({ children }) => {
   const username = useRef(null);
+  const token = useRef(null);
 
   useEffect(() => {
+    console.log("WUEIFHIOWEJFIOEJFOIEJF")
     const uname = Cookie.get('username');
+    const tok = Cookie.get('token');
+    if (tok !== undefined) token.current = tok;
     if (uname !== undefined) username.current = uname;
     else username.current = generateRandomLetters(5)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ username }}>
+    <AuthContext.Provider value={{ username, token }}>
       {children}
     </AuthContext.Provider>
   );

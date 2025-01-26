@@ -20,7 +20,7 @@ import AppTheme from "../shared-theme/AppTheme";
 import { useNavigate } from 'react-router-dom';
 
 const Layout = () => {
-  const {username} = useContext(AuthContext);
+  const {username, token} = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleClick = () => { navigate('/'); };
@@ -35,8 +35,8 @@ const Layout = () => {
             </Typography>
 
             {
-              username.current == null &&
-              <Button color="inherit" href="/login">Login</Button>
+              token.current === null &&
+              <Button color="black" href="/login">Login</Button>
             }
             <ColorModeSelect />
 

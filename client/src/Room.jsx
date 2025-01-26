@@ -8,6 +8,21 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
+
+const style = {
+  py: 0,
+  width: '100%',
+  maxWidth: 360,
+  borderRadius: 2,
+  border: '1px solid',
+  borderColor: 'divider',
+  backgroundColor: 'background.paper',
+};
+
 function a11yProps(index) {
   return {
     id: `vertical-tab-${index}`,
@@ -48,9 +63,7 @@ const Room = () => {
     judgeResult
   } = useContext(WebSocketContext);
 
-  console.log(judgeResult)
   const {username} = useContext(AuthContext);
-  console.log(username.current, opponent.current)
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -95,7 +108,7 @@ const Room = () => {
     <div>
       {alert && (
         <div style={styles.alertBanner}>
-          <p>{alert}</p>
+          {/*<p>{alert}</p>*/}
         </div>
       )}
       
@@ -136,47 +149,62 @@ const Room = () => {
             style={styles.problemDetails}
             dangerouslySetInnerHTML={{ __html: problemHtml }}
           />
-          <Box
-            sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: 224 }}
-          >
-            <Tabs
-              orientation="vertical"
-              variant="scrollable"
-              value={value}
-              onChange={handleChange}
-              aria-label="Vertical tabs example"
-              sx={{ borderRight: 1, borderColor: 'divider' }}
+          {judgeResult.current !== null &&
+            <Box
+              sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: 224 }}
             >
-              <Tab label="Item One" {...a11yProps(0)} />
-              <Tab label="Item Two" {...a11yProps(1)} />
-              <Tab label="Item Three" {...a11yProps(2)} />
-              <Tab label="Item Four" {...a11yProps(3)} />
-              <Tab label="Item Five" {...a11yProps(4)} />
-              <Tab label="Item Six" {...a11yProps(5)} />
-              <Tab label="Item Seven" {...a11yProps(6)} />
-            </Tabs>
-            <TabPanel value={value} index={0}>
-              Item One
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              Item Two
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-              Item Three
-            </TabPanel>
-            <TabPanel value={value} index={3}>
-              Item Four
-            </TabPanel>
-            <TabPanel value={value} index={4}>
-              Item Five
-            </TabPanel>
-            <TabPanel value={value} index={5}>
-              Item Six
-            </TabPanel>
-            <TabPanel value={value} index={6}>
-              Item Seven
-            </TabPanel>
-          </Box>
+              <Tabs
+                orientation="vertical"
+                variant="scrollable"
+                value={value}
+                onChange={handleChange}
+                aria-label="Vertical tabs example"
+                sx={{ borderRight: 1, borderColor: 'divider' }}
+              >
+                {
+                  judgeResult.current['passed'].map((p, i) => (
+                    <Tab sx={{'color': 'green'}} key={i} label={'Test Case ' + (i + 1).toString()} {...a11yProps(i)} />
+                  ))
+                }
+                {
+                  judgeResult.current['failed'].map((p, i) => (
+                    <Tab sx={{'color': 'red'}} key={i + judgeResult.current['passed'].length} label={'Test Case ' + (i + 1 + judgeResult.current['passed'].length).toString()} {...a11yProps(i + judgeResult.current['passed'].length)} />
+                  ))
+                }
+              </Tabs>
+              {
+                judgeResult.current['passed'].map((p, i) => (
+                  <TabPanel key={i} value={value} index={i}>
+                    <div>
+                      {p['input']}
+                    </div>
+                    <div>
+                      {"Expected output: " + p['expected']}
+                    </div>
+                    <div>
+                      {"Actual output: " + p['output']}
+                    </div>
+                  </TabPanel>
+                ))
+              }
+              {
+                judgeResult.current['failed'].map((p, i) => (
+                  <TabPanel key={i + judgeResult.current['passed'].length} value={value} index={i + judgeResult.current['passed'].length}>
+                    <div>
+                      {p['input']}
+                    </div>
+                    <div>
+                      {"Expected output: " + p['expected']}
+                    </div>
+                    <div>
+                      {"Actual output: " + p['output']}
+                    </div>
+                  </TabPanel>
+                ))
+              }
+            </Box>
+          }
+
         </div>
 
         <div style={styles.rightPanel}>
