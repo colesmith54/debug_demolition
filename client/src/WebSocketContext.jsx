@@ -71,6 +71,7 @@ export const WebSocketProvider = ({ children }) => {
         } else if (msg.status === 'code-incorrect') {
           console.log('Code is incorrect. Please try again.');
           setAlert('Code is incorrect. Please try again.');
+          console.log('output', msg.output)
           judgeResult.current = msg.output
         } else {
           console.error('Invalid message:', msg.status);

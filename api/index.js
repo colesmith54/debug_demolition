@@ -72,6 +72,7 @@ const hashStringToInt = (str) => {
   for (let i = 0; i < str.length; i++) {
     hash = (hash * prime) + str.charCodeAt(i);
   }
+  return 0;
   return Math.abs(hash) % 8;
 }
 
@@ -146,7 +147,7 @@ wss.on('connection', async (ws) => {
       }
 
       const problemId = hashStringToInt(roomId);
-      
+
       fs.createReadStream('./assets/problems.csv')
         .pipe(csv())
         .on('data', async (row) => {
@@ -222,7 +223,7 @@ wss.on('connection', async (ws) => {
           const data = JSON.parse(stdout);
           // const outputLines = stdout.split('\n');
           // const status = outputLines[0];
-          const status = data['failed'].length === 0
+          const status = data['failed'].length === 0 ? 'accepted' : 'rejected';
           // const output = outputLines.slice(1).join('\n');
           const output = data
 

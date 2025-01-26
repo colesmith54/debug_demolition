@@ -1,5 +1,6 @@
 import sys
 import pprint
+import json
 
 import pandas as pd
 
@@ -32,13 +33,14 @@ def main():
         final_code = code + '\n' + inp + '\n' + f'output = {problem_function_name}(*input)'
         context = {}
         exec(final_code, context)
-
-        if out == str(context['output']):
-            results['passed'].append({'input': inp, 'expected': out, 'output': context['output']})
+        expected = out.strip().replace('\n', '').replace(' ', '').lower()
+        output = str(context['output']).strip().replace('\n', '').replace(' ', '').lower()
+        if expected == output:
+            results['passed'].append({'input': inp, 'expected': expected, 'output': output})
         else:
-            results['failed'].append({'input': inp, 'expected': out, 'output': context['output']})
+            results['failed'].append({'input': inp, 'expected': expected, 'output': output})
 
-    pprint.pprint(results)
+    print(json.dumps(results))
 
 
 if __name__ == '__main__':
