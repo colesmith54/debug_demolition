@@ -20,8 +20,6 @@ const Room = () => {
 
   const [code, setCode] = useState(initialCode || '');
 
-  console.log("alert: ", alert);  
-
   useEffect(() => {
     setCode((prev) => {
       if (prev && typeof prev === 'string' && prev.startsWith('`')) return prev.slice(10, -4);
@@ -54,10 +52,27 @@ const Room = () => {
       )}
       
       <div style={styles.header}>
-        <h2>Room ID: {roomId || 'None'}</h2>
-        <h4>Player 1: {username.current || 'Waiting...'}</h4>
-        <h4>Player 2: {opponent.current || 'Waiting...'}</h4>
+        <div style={styles.roomInfo}>
+          <h4 style={styles.roomId}>Room ID: {roomId || 'None'}</h4>
+          <div style={styles.players}>
+            {/* Player 1 */}
+            <div style={styles.playerContainer}>
+              <h3 style={styles.playerName}>{username.current || 'Player 1'}</h3>
+              <p style={styles.playerElo}>{username.current ? `Rating: 1000` : 'Waiting...'}</p>
+            </div>
+
+            {/* VS */}
+            <h3 style={styles.vs}>VS</h3>
+
+            {/* Player 2 */}
+            <div style={styles.playerContainer}>
+              <h3 style={styles.playerName}>{opponent.current || 'Player 2'}</h3>
+              <p style={styles.playerElo}>{opponent.current ? `Rating: 1200` : 'Waiting...'}</p>
+            </div>
+          </div>
+        </div>
       </div>
+
 
       <div style={styles.layout}>
         <div style={styles.leftPanel}>
@@ -89,14 +104,54 @@ const Room = () => {
 
 const styles = {
   header: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'relative',
     padding: '20px',
-    backgroundColor: '#007bff',
-    color: 'white',
+    backgroundColor: '#f4f4f4',
+    borderBottom: '2px solid #ddd',
+  },
+  roomInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center', 
+    gap: '10px',
+  },
+  roomId: {
+    fontSize: '14px',
+    color: '#666',
+    fontWeight: 'bold',
+  },
+  players: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center', 
+    gap: '40px',
+    marginTop: '10px', 
+  },
+  playerContainer: {
     textAlign: 'center',
+  },
+  playerName: {
+    fontSize: '18px',
+    color: '#663',
+    fontWeight: 'bold',
+    margin: 0,
+  },
+  playerElo: {
+    fontSize: '14px',
+    color: '#555',
+    margin: '5px 0 0',
+  },
+  vs: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    color: '#000',
   },
   layout: {
     display: 'flex',
-    height: 'calc(100vh - 100px)', // Subtract header height
+    height: 'calc(100vh - 100px)', 
     overflow: 'hidden',
   },
   leftPanel: {
