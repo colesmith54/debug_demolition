@@ -51,6 +51,10 @@ const generateCode = () => {
 };
 
 const updateELO = (winner, loser) => {
+  if(!winner || !loser) {
+    console.log("Winner or loser not found");
+    return;
+  }
   const K = 32;
   const R1 = Math.pow(10, winner.elo / 400);
   const R2 = Math.pow(10, loser.elo / 400);
@@ -116,6 +120,10 @@ wss.on('connection', async (ws) => {
 
     if (msg.status === 'join-room') {
       const roomId = msg.roomId;
+      if(!rooms.has(roomId) || rooms.get(roomId).length >= 2 || rooms.get(roomId).members[0].username === msg.username) {
+        console.log("Room not found or full");
+        return;
+      }
       rooms.get(roomId).members.push(new Player(ws, msg.elo, msg.username, msg.wins, msg.losses));
 
       const problemId = hashStringToInt(roomId);
@@ -169,6 +177,10 @@ wss.on('connection', async (ws) => {
       
       console.log("things");
 
+      if(!roomId) {
+        console.log("Room not found");
+        return;
+      }
 
       const code = msg.code;
       const problemId = hashStringToInt(roomId);
@@ -184,17 +196,17 @@ wss.on('connection', async (ws) => {
             return;
           }
           
-          console.log("things", error, stdout, stderr);
+          console.log("things1", error, stdout, stderr);
           const outputLines = stdout.split('\n');
           const status = outputLines[0];
           const output = outputLines.slice(1).join('\n');
   
-          console.log("things", error, stdout, stderr);
+          console.log("things2", error, stdout, stderr);
           if (status === 'accepted') {
             const winner = player;
             const loser = rooms.get(roomId).members.find((p) => p.ws !== ws);
   
-            console.log("things", error, stdout, stderr);
+            console.log("things3", error, stdout, stderr);
             updateELO(winner, loser);
   
             try {
@@ -204,7 +216,7 @@ wss.on('connection', async (ws) => {
               console.log(err);
             }
   
-            console.log("things", error, stdout, stderr);
+            console.log("things4", error, stdout, stderr);
             winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
             loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
   
