@@ -68,7 +68,7 @@ const hashStringToInt = (str) => {
     for (let i = 0; i < str.length; i++) {
       hash = (hash * prime) + str.charCodeAt(i);
     }
-    return Math.abs(hash) % 9;
+    return Math.abs(hash) % 8;
 }
 
 
