@@ -7,16 +7,13 @@ import {Container, Toolbar, Typography} from "@mui/material";
 import {AuthContext} from "./AuthContext.jsx";
 
 function Home() {
-  const { sendMessage, roomId, setRoomId, messages } = useContext(WebSocketContext);
+  const { sendMessage, roomId, setRoomId, messages, memberCount, alert } = useContext(WebSocketContext);
   const {username} = useContext(AuthContext);
 
   const [elo, setElo] = useState('1000');
   const [wins, setWins] = useState('0');
   const [losses, setLosses] = useState('0');
   const [roomIdInput, setRoomIdInput] = useState('');
-  // const [code] = useState('');       // Not currently used
-  // const [gameResult] = useState(''); // Not currently used
-  // const [inputMessage] = useState(''); // Not currently used
 
   const createRoom = (e) => {
     e.preventDefault();
@@ -44,8 +41,16 @@ function Home() {
     sendMessage(payload);
   };
 
+  const leaveRoom = () => {
+    setRoomId('');
+    sendMessage({ status: 'leave-room', roomId });
+  };
+
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', margin: '20px' }}>
+      {alert && (
+          <p>{alert}</p>
+      )}
       <div style={{ marginTop: '20px', textAlign: 'center' }}>
         <h4>Statistics</h4>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '40px' }}>
@@ -83,24 +88,26 @@ function Home() {
                 borderRadius: '4px'
               }}
             >
-              Create
+              {roomId ? `Room ID: ${roomId}` : 'Create'}
             </button>
           </form>
 
 
           <form
-            onSubmit={joinRoom}
+            onSubmit={!roomId ? joinRoom : (e) => { e.preventDefault(); leaveRoom(); }}
             style={{ width: '150px', alignItems: 'center', display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
           >
-            <h4>Join Room</h4>
-            <input
-              type="text"
-              placeholder="Room ID"
-              value={roomIdInput}
-              onChange={(e) => setRoomIdInput(e.target.value)}
-              required
-              style={{ marginBottom: '8px' }}
-            />
+            <h4>{!roomId ? 'Join Room' : 'Leave Room'}</h4>
+            {!roomId ? (
+              <input
+                type="text"
+                placeholder="Room ID"
+                value={roomIdInput}
+                onChange={(e) => setRoomIdInput(e.target.value)}
+                required
+                style={{ marginBottom: '8px' }}
+              />
+            ) : null}
             <button
               type="submit"
               style={{
@@ -112,17 +119,17 @@ function Home() {
                 borderRadius: '4px'
               }}
             >
-              Join
+              {!roomId ? 'Join' : 'Leave'}
             </button>
           </form>
 
           <div style={{ width: '150px', alignItems: 'center', marginTop: '20px', textAlign: 'center' }}>
-          {roomId ? (
-            <p>You are in room {roomId} with 1/2 capacity</p>
-          ) : (
-            <p>You are not in a room</p>
-          )}
-        </div>
+            {roomId ? (
+              <p>You are in room {roomId} with {memberCount}/2 capacity</p>
+            ) : (
+              <p>You are not in a room</p>
+            )}
+          </div>
       </div>
 
       <hr />
