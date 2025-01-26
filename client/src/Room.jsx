@@ -37,6 +37,7 @@ function TabPanel(props) {
 
 const Room = () => {
   const {
+    isLoading,
     problemHtml,
     initialCode,
     sendMessage,
@@ -58,6 +59,14 @@ const Room = () => {
 
 
   const [code, setCode] = useState(initialCode || '');
+  const [timer, setTimer] = useState(300); // 5 minutes in seconds
+
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+      return () => clearInterval(interval); // Cleanup on unmount
+    }
+  }, [timer]);
 
   useEffect(() => {
     setCode((prev) => {
@@ -93,6 +102,9 @@ const Room = () => {
       <div style={styles.header}>
         <div style={styles.roomInfo}>
           <h4 style={styles.roomId}>Room ID: {roomId || 'None'}</h4>
+          <div style={styles.timer}>
+            {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
+          </div>
           <div style={styles.players}>
             {/* Player 1 */}
             <div style={styles.playerContainer}>
@@ -117,7 +129,7 @@ const Room = () => {
         <div style={styles.leftPanel}>
           <div style={styles.buttonContainer}>
             <button style={styles.runButton} onClick={handleRunCode}>
-              Run
+              {isLoading ? 'Loading...' : 'Run'}
             </button>
           </div>
           <div
@@ -168,14 +180,22 @@ const Room = () => {
         </div>
 
         <div style={styles.rightPanel}>
-          <Editor
-            defaultLanguage="python"
-            value={code}
-            onChange={(newValue) => setCode(newValue)}
-            options={editorOptions}
-            height="100%"
-            width="100%"
-          />
+          {/* Editor Container */}
+          <div style={styles.editorContainer}>
+            <Editor
+              defaultLanguage="python"
+              value={code}
+              onChange={(newValue) => setCode(newValue)}
+              options={editorOptions}
+              height="100%"
+              width="100%"
+            />
+          </div>
+
+          {/* Hello Container */}
+          <div style={styles.helloContainer}>
+            Hello
+          </div>
         </div>
       </div>
     </div>
@@ -288,9 +308,37 @@ const styles = {
   rightPanel: {
     flex: '1',
     padding: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
     backgroundColor: '#f5f5f5',
-    position: 'relative',
     minHeight: '100vh',
+  },
+  editorContainer: {
+    flex: '1', // Takes up remaining space
+    position: 'relative',
+  },
+  helloContainer: {
+    alignSelf: 'flex-end', // Aligns to the right
+    backgroundColor: '#f0f0f0',
+    padding: '10px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    marginTop: '10px', // Space between Editor and Hello
+    maxWidth: '200px',
+    textAlign: 'center',
+  },
+  timer: {
+    position: 'absolute',
+    top: '10px',
+    right: '20px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#333',
+    backgroundColor: '#f4f4f4',
+    padding: '5px 10px',
+    borderRadius: '5px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
   },
 };
 

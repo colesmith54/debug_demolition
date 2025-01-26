@@ -15,6 +15,7 @@ export const WebSocketProvider = ({ children }) => {
   const [alert, setAlert] = useState(null);
   const opponent = useRef(null);
   const [memberCount, setMemberCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Use a ref to store the WebSocket instance
   const socketRef = useRef(null);
@@ -46,6 +47,9 @@ export const WebSocketProvider = ({ children }) => {
           console.log('Member count:', msg.memberCount);
           setMemberCount(msg.memberCount);
         }
+        if (msg.status === 'code-submission') {
+          setIsLoading(true);
+        }
         if (msg.status === 'room-created' && msg.roomId) {
           setMemberCount(1);
           setRoomId(msg.roomId);
@@ -61,19 +65,24 @@ export const WebSocketProvider = ({ children }) => {
           navigate('/room');
         } else if (msg.status === 'game-won') {
           setAlert('You won the game. Congratulations!');
+          setIsLoading(false);
           navigate('/');
         } else if (msg.status === 'game-lost') {
           setAlert('You lost the game. Better luck next time!');
+          setIsLoading(false);
           navigate('/');
         } else if (msg.status === 'game-tie') {
           setAlert('The game ended in a tie. Better luck next time!');
+          setIsLoading(false);
           navigate('/');
         } else if (msg.status === 'code-incorrect') {
           console.log('Code is incorrect. Please try again.');
           setAlert('Code is incorrect. Please try again.');
+          setIsLoading(false);
           console.log('output', msg.output)
           judgeResult.current = msg.output
         } else {
+          setIsLoading(false);
           console.error('Invalid message:', msg.status);
         }
       } catch (err) {
@@ -115,7 +124,8 @@ export const WebSocketProvider = ({ children }) => {
         setHasNavigated,
         opponent,
         alert,
-        judgeResult
+        judgeResult,
+        isLoading
       }}
     >
       {children}
