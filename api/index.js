@@ -173,45 +173,61 @@ wss.on('connection', async (ws) => {
     }
 
     if (msg.status === 'code-submission') {
-      const roomId = rooms.find((r) => r.members.find((p) => p.ws === ws));
-      const player = rooms.get(roomId).members.find((p) => p.ws === ws);
+      console.log("thingssssss");
+
+      const [roomId, room] = [...rooms].find(([id, room]) =>
+        room.members.some((p) => p.ws === ws)
+      ) || [];
+      const player = room ? room.members.find((p) => p.ws === ws) : null;
+      
+      console.log("things");
+
 
       const code = msg.code;
       const problemId = hashStringToInt(roomId);
 
       const command = `python judge/judge.py ${problemId} ${code}`;
 
-      exec(command, async (error, stdout, stderr) => {
-        if (error) {
-          console.error(`exec error: ${stderr}`);
-          return;
-        }
-        
-        const outputLines = stdout.split('\n');
-        const status = outputLines[0];
-        const output = outputLines.slice(1).join('\n');
+      console.log(`Executing command: ${command}`);
 
-        if (status === 'accepted') {
-          const winner = player;
-          const loser = rooms.get(roomId).members.find((p) => p.ws !== ws);
-
-          updateELO(winner, loser);
-
-          try {
-            await User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
-            await User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
-          } catch (err) {
-            console.log(err);
+      setTimeout(() => {
+        exec(command, async (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${stderr}`);
+            return;
           }
-
-          winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
-          loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
-
-          rooms.delete(roomId);
-        } else {
-         player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
-        }
-      });
+          
+          console.log("things", error, stdout, stderr);
+          const outputLines = stdout.split('\n');
+          const status = outputLines[0];
+          const output = outputLines.slice(1).join('\n');
+  
+          console.log("things", error, stdout, stderr);
+          if (status === 'accepted') {
+            const winner = player;
+            const loser = rooms.get(roomId).members.find((p) => p.ws !== ws);
+  
+            console.log("things", error, stdout, stderr);
+            updateELO(winner, loser);
+  
+            try {
+              await User.updateOne({ username: winner.username }, { elo: winner.elo, wins: winner.wins, losses: winner.losses });
+              await User.updateOne({ username: loser.username }, { elo: loser.elo, wins: loser.wins, losses: loser.losses });
+            } catch (err) {
+              console.log(err);
+            }
+  
+            console.log("things", error, stdout, stderr);
+            winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
+            loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
+  
+            console.log("things", error, stdout, stderr);
+            rooms.delete(roomId);
+          } else {
+           player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
+          }
+        });
+      }, 2000);
     }
   });
 

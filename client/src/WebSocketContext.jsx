@@ -11,6 +11,7 @@ export const WebSocketProvider = ({ children }) => {
   const [initialCode, setInitialCode] = useState(null);
   const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate();
+  const [alert, setAlert] = useState(null); 
 
   useEffect(() => {
     socketRef.current = new WebSocket('ws://localhost:5000');
@@ -53,6 +54,13 @@ export const WebSocketProvider = ({ children }) => {
           navigate('/');
         } else if (msg.status === 'game-lost') {
           navigate('/');
+        } else if(msg.status === 'game-tie') {
+          navigate('/');
+        } else if(msg.status === 'code-incorrect') {
+          console.log("Code is incorrect. Please try again.");
+          setAlert("Code is incorrect. Please try again.");
+        } else {
+          console.error('Invalid message:', msg.status);
         }
       } catch (err) {
         console.error('Invalid JSON:', err);

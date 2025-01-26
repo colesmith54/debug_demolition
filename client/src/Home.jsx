@@ -63,28 +63,6 @@ function Home() {
     sendMessage(payload);
   };
 
-  const endGame = (e) => {
-    e.preventDefault();
-    const payload = {
-      status: 'game-end',
-      roomId,
-      result: gameResult
-    };
-    logMessage('Client -> WS: ' + JSON.stringify(payload));
-    sendMessage(payload);
-  };
-
-  const submitCode = (e) => {
-    e.preventDefault();
-    const payload = {
-      status: 'code-submission',
-      roomId,
-      code
-    };
-    logMessage('Client -> WS: ' + JSON.stringify(payload));
-    sendMessage(payload);
-  };
-  
   return (
     <div>
       {/*<Box>*/}

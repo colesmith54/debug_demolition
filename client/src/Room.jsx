@@ -12,14 +12,15 @@ const Room = () => {
     player1,
     player2,
     setHasNavigated,
+    alert
   } = useContext(WebSocketContext);
 
-  // For the code editor
   const [code, setCode] = useState(initialCode || '');
 
-  console.log('Room:', roomId, 'Player1:', player1, 'Player2:', player2);
-  console.log('Initial Code:', initialCode);
-  console.log('Problem HTML:', problemHtml);
+  console.log("alert: ", alert);  
+  // console.log('Room:', roomId, 'Player1:', player1, 'Player2:', player2);
+  // console.log('Initial Code:', initialCode);
+  // console.log('Problem HTML:', problemHtml);
 
   useEffect(() => {
     setCode((prev) => {
@@ -29,7 +30,6 @@ const Room = () => {
     setHasNavigated(false);
   }, [initialCode]);
 
-  // Monaco Editor settings
   const editorOptions = {
     selectOnLineNumbers: true,
     minimap: { enabled: false },
@@ -37,40 +37,47 @@ const Room = () => {
     theme: 'vs-light',
   };
 
-  // Run/Submit code
   const handleRunCode = async () => {
     try {
-      sendMessage({ status: 'code-submission', code }); // Using object for clarity
-      alert('Code executed successfully');
+      sendMessage({ status: 'code-submission'});
     } catch (error) {
-      console.error('Error running the code', error);
-      alert('Error executing code');
+      console.error('Error running the code:', error);
+    }
+  };
+
+  const handleSubmitCode = async () => {
+    try {
+      console.log("1");
+      sendMessage({ status: 'code-submission' });
+    } catch (error) {
+      console.error('Error submitting the code:', error);
     }
   };
 
   return (
     <div>
-      {/* Header Section */}
       <div style={styles.header}>
         <h2>Room ID: {roomId || 'None'}</h2>
         <h4>Player 1: {player1 || 'Waiting...'}</h4>
         <h4>Player 2: {player2 || 'Waiting...'}</h4>
       </div>
 
-      {/* Layout */}
       <div style={styles.layout}>
-        {/* Problem / Left Section */}
         <div style={styles.leftPanel}>
-          <button style={styles.runButton} onClick={handleRunCode}>
-            Run
-          </button>
+          <div style={styles.buttonContainer}>
+            <button style={styles.runButton} onClick={handleRunCode}>
+              Run
+            </button>
+            <button style={styles.submitButton} onClick={handleSubmitCode}>
+              Submit
+            </button>
+          </div>
           <div
             style={styles.problemDetails}
             dangerouslySetInnerHTML={{ __html: problemHtml }}
           />
         </div>
 
-        {/* Editor / Right Section */}
         <div style={styles.rightPanel}>
           <Editor
             defaultLanguage="python"
@@ -106,6 +113,11 @@ const styles = {
     borderRight: '2px solid #ddd',
     position: 'relative',
   },
+  buttonContainer: {
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '20px',
+  },
   runButton: {
     backgroundColor: '#007bff',
     color: 'white',
@@ -115,7 +127,16 @@ const styles = {
     fontWeight: 'bold',
     border: 'none',
     outline: 'none',
-    marginBottom: '20px',
+  },
+  submitButton: {
+    backgroundColor: '#28a745',
+    color: 'white',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    border: 'none',
+    outline: 'none',
   },
   problemDetails: {
     fontSize: '16px',
