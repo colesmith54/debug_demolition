@@ -13,30 +13,11 @@ function Home() {
   const [wins, setWins] = useState('0');
   const [losses, setLosses] = useState('0');
   const [roomIdInput, setRoomIdInput] = useState('');
-  const [code] = useState('');       // Not currently used
-  const [gameResult] = useState(''); // Not currently used
-  const [inputMessage] = useState(''); // Not currently used
+  // const [code] = useState('');       // Not currently used
+  // const [gameResult] = useState(''); // Not currently used
+  // const [inputMessage] = useState(''); // Not currently used
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (roomId) {
-      handleLogMessage(`Room Created: ${roomId}`);
-      // navigate(`/room/${roomId}`); // If you want to auto-navigate on room creation
-    }
-  }, [roomId, navigate]);
-
-  const handleLogMessage = (msg) => {
-    // console.log(msg);
-  };
-
-  const handleSendTestMessage = (msg) => {
-    const message = { status: 'test-message', content: msg };
-    handleLogMessage('Client -> WS: ' + JSON.stringify(message));
-    sendMessage(message);
-  };
-
-  const handleCreateRoom = (e) => {
+  const createRoom = (e) => {
     e.preventDefault();
     const payload = {
       status: 'create-room',
@@ -45,84 +26,103 @@ function Home() {
       wins: Number(wins),
       losses: Number(losses),
     };
-    handleLogMessage('Client -> WS: ' + JSON.stringify(payload));
     sendMessage(payload);
   };
 
-  const handleJoinRoom = (e) => {
+  const joinRoom = (e) => {
     e.preventDefault();
     const payload = {
       status: 'join-room',
       roomId: roomIdInput,
-      username,
+      // username: username,
       elo: Number(elo),
       wins: Number(wins),
       losses: Number(losses),
     };
-    handleLogMessage('Client -> WS: ' + JSON.stringify(payload));
     setRoomId(roomIdInput);
     sendMessage(payload);
   };
 
   return (
-    <div>
-      <h1>WebSocket & Routes Test</h1>
-      <button onClick={() => handleSendTestMessage('Test')}>Send Test Message</button>
+    <div style={{ fontFamily: 'Arial, sans-serif', margin: '20px' }}>
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <h4>Statistics</h4>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '40px' }}>
+          <div>
+            <p style={{ margin: 0 }}>ELO</p>
+            <p style={{ fontWeight: 'bold', margin: 0 }}>{elo}</p>
+          </div>
+          <div>
+            <p style={{ margin: 0 }}>Wins</p>
+            <p style={{ fontWeight: 'bold', margin: 0 }}>{wins}</p>
+          </div>
+          <div>
+            <p style={{ margin: 0 }}>Losses</p>
+            <p style={{ fontWeight: 'bold', margin: 0 }}>{losses}</p>
+          </div>
+        </div>
+      </div>
+
       <hr />
 
-      <h3>Room & Game Actions</h3>
-      <form onSubmit={handleCreateRoom}>
-        <h4>Create Room</h4>
-        <label>
-          Username:
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          ELO:
-          <input
-            type="number"
-            value={elo}
-            onChange={(e) => setElo(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Wins:
-          <input
-            type="number"
-            value={wins}
-            onChange={(e) => setWins(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Losses:
-          <input
-            type="number"
-            value={losses}
-            onChange={(e) => setLosses(e.target.value)}
-            required
-          />
-        </label>
-        <button type="submit">Create</button>
-      </form>
+      <div style={{ display: 'flex', gap: '40px', justifyContent: 'center' }}>
+        <form
+            onSubmit={createRoom}
+            style={{ display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
+          >
+            <h4>Create Room</h4>
+            <button
+              type="submit"
+              style={{
+                backgroundColor: '#1976d2',
+                color: '#fff',
+                border: 'none',
+                padding: '6px 12px',
+                cursor: 'pointer',
+                borderRadius: '4px'
+              }}
+            >
+              Create
+            </button>
+          </form>
 
-      <form onSubmit={handleJoinRoom}>
-        <h4>Join Room</h4>
-        <input
-          type="text"
-          placeholder="Room ID"
-          value={roomIdInput}
-          onChange={(e) => setRoomIdInput(e.target.value)}
-          required
-        />
-        <button type="submit">Join</button>
-      </form>
+
+          <form
+            onSubmit={joinRoom}
+            style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
+          >
+            <h4>Join Room</h4>
+            <input
+              type="text"
+              placeholder="Room ID"
+              value={roomIdInput}
+              onChange={(e) => setRoomIdInput(e.target.value)}
+              required
+              style={{ marginBottom: '8px' }}
+            />
+            <button
+              type="submit"
+              style={{
+                backgroundColor: '#1976d2',
+                color: '#fff',
+                border: 'none',
+                padding: '6px 12px',
+                cursor: 'pointer',
+                borderRadius: '4px'
+              }}
+            >
+              Join
+            </button>
+          </form>
+
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          {roomId ? (
+            <p>You are in room {roomId} with 1/2 capacity</p>
+          ) : (
+            <p>You are not in a room</p>
+          )}
+        </div>
+      </div>
 
       <hr />
       <h2>Log</h2>
@@ -137,7 +137,7 @@ function Home() {
               displayMessage = `Game Started in Room: ID ${parsed.roomId}`;
             }
           } catch {
-            // Keep original if not JSON
+            displayMessage = msg;
           }
           return <li key={i}>{displayMessage}</li>;
         })}
