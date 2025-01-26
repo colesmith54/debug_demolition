@@ -126,7 +126,21 @@ wss.on('connection', async (ws) => {
         ws.send(JSON.stringify({ status: 'room-not-found' }));
         return;
       }
-      rooms.get(roomId).members.push(new Player(ws, msg.elo, msg.username, msg.wins, msg.losses));
+      
+      const room = rooms.get(msg.roomId);
+      if (room) {
+        room.members.push(new Player(ws, msg.elo, msg.username, msg.wins, msg.losses));
+        room.members.forEach((member) => {
+          console.log("Sending updated sz to: ", member.username);
+          member.ws.send(
+            JSON.stringify({
+              status: 'room-updated',
+              roomId: msg.roomId,
+              memberCount: room.members.length,
+            })
+          );
+        });
+      }
 
       const problemId = hashStringToInt(roomId);
       

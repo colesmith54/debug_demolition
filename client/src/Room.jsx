@@ -18,9 +18,6 @@ const Room = () => {
   const [code, setCode] = useState(initialCode || '');
 
   console.log("alert: ", alert);  
-  // console.log('Room:', roomId, 'Player1:', player1, 'Player2:', player2);
-  // console.log('Initial Code:', initialCode);
-  // console.log('Problem HTML:', problemHtml);
 
   useEffect(() => {
     setCode((prev) => {
@@ -47,6 +44,12 @@ const Room = () => {
 
   return (
     <div>
+      {alert && (
+        <div style={styles.alertBanner}>
+          <p>{alert}</p>
+        </div>
+      )}
+      
       <div style={styles.header}>
         <h2>Room ID: {roomId || 'None'}</h2>
         <h4>Player 1: {player1 || 'Waiting...'}</h4>
