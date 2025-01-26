@@ -213,7 +213,6 @@ wss.on('connection', async (ws) => {
       const command = `python3 judge.py ${problemId} "${code}"`;
 
       console.log(`Executing command: ${command}`);
-
       const execWithTimeout = (command, options, timeout) => {
         return new Promise((resolve, reject) => {
           const process = exec(command, options, (error, stdout, stderr) => {
@@ -235,7 +234,7 @@ wss.on('connection', async (ws) => {
 
       setTimeout(async () => {
         try {
-          const { stdout, stderr } = await execWithTimeout(command, { cwd: './judge/' }, 5000);
+          const { stdout, stderr } = await execWithTimeout(command, { cwd: './judge/' }, 10000);
           const data = JSON.parse(stdout);
           const status = data['failed'].length === 0 ? 'accepted' : 'rejected';
           const output = data;
@@ -264,7 +263,7 @@ wss.on('connection', async (ws) => {
           console.log('Error:', err.message);
           player.ws.send(JSON.stringify({ status: 'code-incorrect', output: 'Time Limit Exceeded' }));
         }
-      }, 5000);
+      }, 10000);
     }
   });
 
