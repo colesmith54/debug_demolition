@@ -100,6 +100,7 @@ wss.on('connection', async (ws) => {
     const msg = JSON.parse(message);
 
     if (msg.status === 'create-room') {
+      console.log('fowjef', msg.username)
       const roomId = generateCode();
       rooms.set(roomId, {
         members: [new Player(ws, msg.elo, msg.username, msg.wins, msg.losses)],
@@ -111,6 +112,7 @@ wss.on('connection', async (ws) => {
 
       setTimeout(() => {
         if (rooms.has(roomId) && rooms.get(roomId).members.length < 2) {
+          console.log("Deleting room4!")
           rooms.delete(roomId);
           ws.send(JSON.stringify({ status: 'room-expired' }));
         }
@@ -118,6 +120,7 @@ wss.on('connection', async (ws) => {
     }
 
     if (msg.status === 'join-room') {
+      console.log('f', msg.username)
       const roomId = msg.roomId;
       if (!rooms.has(roomId) || rooms.get(roomId).length >= 2 || (rooms.get(roomId).members[0].username === msg.username && msg.username !== '')) {
         if (!rooms.has(roomId)) console.log("Room not found");
@@ -144,14 +147,16 @@ wss.on('connection', async (ws) => {
             const incorrect_code = await gen_incorrect_code(row.html, template)
             console.log("2x YES");
 
-            rooms.get(roomId).members.forEach((p) => {
+            const members = rooms.get(roomId).members;
+            members.forEach((p, i) => {
               p.ws.send(JSON.stringify({
                 status: 'game-start',
                 title: title,
                 problem_description: problemDescription,
                 initialCode: incorrect_code,
-              }));
-            });
+                opponent: members[1 - i].username
+              }))
+            })
           }
         })
         .on('end', () => {
@@ -163,6 +168,7 @@ wss.on('connection', async (ws) => {
 
       setTimeout(() => {
         if (rooms.has(roomId)) {
+          console.log("Deleting room1!")
           rooms.delete(roomId);
           ws.send(JSON.stringify({ status: 'room-expired' }));
         }
@@ -170,10 +176,13 @@ wss.on('connection', async (ws) => {
     }
 
     if (msg.status === 'code-submission') {
+      console.log('msg', msg)
+      console.log(rooms)
       const roomId = msg.roomId;
       const room = rooms.get(roomId);
-      const player = room ? room.members.find((p) => p.ws === ws) : null;
-      
+      const player = room ? room.members.find((p) => p.username === msg.username) : null;
+      console.log(player)
+
       console.log("things");
 
       if(!roomId) {
@@ -184,7 +193,7 @@ wss.on('connection', async (ws) => {
       const code = msg.code;
       const problemId = hashStringToInt(roomId);
 
-      const command = `python judge.py ${problemId} "${code}"`;
+      const command = `python3 judge.py ${problemId} "${code}"`;
 
       console.log(`Executing command: ${command}`);
 
@@ -220,6 +229,7 @@ wss.on('connection', async (ws) => {
             loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
   
             console.log("things", error, stdout, stderr);
+            console.log("Deleting room2!")
             rooms.delete(roomId);
           } else {
            player.ws.send(JSON.stringify({ status: 'code-incorrect', output: output }));
@@ -248,6 +258,7 @@ wss.on('connection', async (ws) => {
         winner.ws.send(JSON.stringify({ status: 'game-won', elo: winner.elo, wins: winner.wins, losses: winner.losses }));
         loser.ws.send(JSON.stringify({ status: 'game-lost', elo: loser.elo, wins: loser.wins, losses: loser.losses }));
 
+        console.log("Deleting room3!")
         rooms.delete(roomId);
       }
     });
@@ -273,6 +284,8 @@ app.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '50d' });
+
+    res.cookie('token', token, {secure: false, maxAge: 999999, httpOnly: false});
     return res.json({ token: token, username: user.username, elo: user.elo, wins: user.wins, losses: user.losses });
   } catch (err) {
     return res.status(500).json({ error: 'Internal server error' });

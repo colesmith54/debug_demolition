@@ -11,7 +11,8 @@ export const WebSocketProvider = ({ children }) => {
   const [initialCode, setInitialCode] = useState(null);
   const [hasNavigated, setHasNavigated] = useState(false);
   const navigate = useNavigate();
-  const [alert, setAlert] = useState(null); 
+  const [alert, setAlert] = useState(null);
+  const opponent = useRef(null);
 
   useEffect(() => {
     socketRef.current = new WebSocket('ws://localhost:5000');
@@ -49,6 +50,7 @@ export const WebSocketProvider = ({ children }) => {
           setProblemHtml(msg.problem_description);
           setInitialCode(msg.initialCode);
           setHasNavigated(true);
+          opponent.current = msg.opponent;
           navigate('/room');
         } else if (msg.status === 'game-won') {
           navigate('/');
@@ -82,7 +84,7 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
-    <WebSocketContext.Provider value={{ sendMessage, roomId, setRoomId, messages, problemHtml, initialCode, setHasNavigated }}>
+    <WebSocketContext.Provider value={{ sendMessage, roomId, setRoomId, messages, problemHtml, initialCode, setHasNavigated, opponent }}>
       {children}
     </WebSocketContext.Provider>
   );

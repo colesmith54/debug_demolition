@@ -19,7 +19,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import AppTheme from "../shared-theme/AppTheme";
 
 const Layout = () => {
-  const {getUsername} = useContext(AuthContext);
+  const {username} = useContext(AuthContext);
 
   return (
     <Box>
@@ -32,7 +32,7 @@ const Layout = () => {
             </Typography>
 
             {
-              getUsername() == null &&
+              username.current == null &&
               <Button color="inherit" href="/login">Login</Button>
             }
             <ColorModeSelect />

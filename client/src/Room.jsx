@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { WebSocketContext } from './WebSocketContext';
 import PropTypes from 'prop-types';
 import Editor from '@monaco-editor/react';
+import {AuthContext} from "./AuthContext.jsx";
 
 const Room = () => {
   const {
@@ -9,11 +10,13 @@ const Room = () => {
     initialCode,
     sendMessage,
     roomId,
-    player1,
-    player2,
+    opponent,
     setHasNavigated,
     alert
   } = useContext(WebSocketContext);
+
+  const {username} = useContext(AuthContext);
+  console.log(username.current, opponent.current)
 
   const [code, setCode] = useState(initialCode || '');
 
@@ -39,7 +42,7 @@ const Room = () => {
 
   const handleRunCode = async () => {
     try {
-      sendMessage({ status: 'code-submission', roomId: roomId, code: code });
+      sendMessage({ status: 'code-submission', username: username.current, roomId: roomId, code: code });
     } catch (error) {
       console.error('Error running the code:', error);
     }
@@ -49,8 +52,8 @@ const Room = () => {
     <div>
       <div style={styles.header}>
         <h2>Room ID: {roomId || 'None'}</h2>
-        <h4>Player 1: {player1 || 'Waiting...'}</h4>
-        <h4>Player 2: {player2 || 'Waiting...'}</h4>
+        <h4>Player 1: {username.current || 'Waiting...'}</h4>
+        <h4>Player 2: {opponent.current || 'Waiting...'}</h4>
       </div>
 
       <div style={styles.layout}>

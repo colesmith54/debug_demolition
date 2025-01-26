@@ -3,12 +3,13 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WebSocketContext } from './WebSocketContext';
 import Box from '@mui/material/Box';
-import { Container, Toolbar, Typography } from '@mui/material';
+import {Container, Toolbar, Typography} from "@mui/material";
+import {AuthContext} from "./AuthContext.jsx";
 
 function Home() {
   const { sendMessage, roomId, setRoomId, messages } = useContext(WebSocketContext);
+  const {username} = useContext(AuthContext);
 
-  const [username, setUsername] = useState('');
   const [elo, setElo] = useState('1000');
   const [wins, setWins] = useState('0');
   const [losses, setLosses] = useState('0');
@@ -21,10 +22,10 @@ function Home() {
     e.preventDefault();
     const payload = {
       status: 'create-room',
-      username,
+      username: username.current,
       elo: Number(elo),
       wins: Number(wins),
-      losses: Number(losses),
+      losses: Number(losses)
     };
     sendMessage(payload);
   };
@@ -34,10 +35,10 @@ function Home() {
     const payload = {
       status: 'join-room',
       roomId: roomIdInput,
-      // username: username,
+      username: username.current,
       elo: Number(elo),
       wins: Number(wins),
-      losses: Number(losses),
+      losses: Number(losses)
     };
     setRoomId(roomIdInput);
     sendMessage(payload);

@@ -76,7 +76,7 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  const {setUsername} = useContext(AuthContext);
+  const {username} = useContext(AuthContext);
   const navigate = useNavigate();
 
   const login = async (username, password) => {
@@ -96,7 +96,7 @@ export default function SignIn(props) {
       }
 
       const data = await response.json();
-      setUsername(data.username);
+      username.current = data.username;
       console.log('Login successful:', data);
       navigate('/');
 
