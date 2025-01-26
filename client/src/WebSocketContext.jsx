@@ -47,7 +47,6 @@ export const WebSocketProvider = ({ children }) => {
         } else if (msg.status === 'game-start') {
           setProblemHtml(msg.problemHtml);
           setInitialCode(msg.initialCode);
-
           setHasNavigated(true);
           navigate('/room');
         } else if (msg.status === 'game-won') {

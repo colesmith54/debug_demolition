@@ -145,8 +145,7 @@ wss.on('connection', async (ws) => {
             const problemDescription = row.html;
             const template = row.function_header;
 
-            // do some ai stuff here
-            const incorrect_code = gen_incorrect_code(row.html, template)
+            const incorrect_code = await gen_incorrect_code(row.html, template)
 
             rooms.get(roomId).members.forEach((p) => {
               p.ws.send(JSON.stringify({
@@ -156,8 +155,6 @@ wss.on('connection', async (ws) => {
                 initialCode: incorrect_code,
               }));
             });
-
-            this.destroy();
           }
         })
         .on('end', () => {
