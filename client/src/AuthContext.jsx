@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   const token = useRef(null);
 
   useEffect(() => {
-    console.log("WUEIFHIOWEJFIOEJFOIEJF")
     const uname = Cookie.get('username');
     const tok = Cookie.get('token');
     if (tok !== undefined) token.current = tok;
