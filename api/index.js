@@ -67,14 +67,14 @@ const updateELO = (winner, loser) => {
 };
 
 const hashStringToInt = (str) => {
-    let hash = 0;
-    const prime = 31;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash * prime) + str.charCodeAt(i);
-    }
-    return Math.abs(hash) % 8;
+  console.log(str);
+  let hash = 0;
+  const prime = 31;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * prime) + str.charCodeAt(i);
+  }
+  return Math.abs(hash) % 8;
 }
-
 
 // {
 //   roomId: {
@@ -120,7 +120,7 @@ wss.on('connection', async (ws) => {
 
     if (msg.status === 'join-room') {
       const roomId = msg.roomId;
-      if(!rooms.has(roomId) || rooms.get(roomId).length >= 2 || rooms.get(roomId).members[0].username === msg.username) {
+      if (!rooms.has(roomId) || rooms.get(roomId).length >= 2 || (rooms.get(roomId).members[0].username === msg.username && msg.username !== '')) {
         console.log("Room not found or full");
         return;
       }
