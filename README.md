@@ -2,7 +2,7 @@
 1. ```cd api```
 2. ```npm i```
 3. ```python -m venv venv```
-4. Windows: ```.\venv\Scripts\activate```, MacOS/Linux: ```venv/bin/activate```
+4. Windows: ```.\venv\Scripts\activate```, MacOS/Linux: ```source venv/bin/activate```
 5. ```pip install -r judge/requirements.txt```
 6. ```node index.js```
 
