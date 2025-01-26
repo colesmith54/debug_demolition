@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WebSocketContext } from './WebSocketContext';
 import Box from '@mui/material/Box';
-import {Container, Toolbar, Typography} from "@mui/material";
+import { Container, Toolbar, Typography } from "@mui/material";
 
 function Home() {
   const { sendMessage, roomId, setRoomId, messages } = useContext(WebSocketContext);
@@ -39,10 +39,10 @@ function Home() {
     e.preventDefault();
     const payload = {
       status: 'create-room',
-      username: username,
+      username,
       elo: Number(elo),
       wins: Number(wins),
-      losses: Number(losses)
+      losses: Number(losses),
     };
     logMessage('Client -> WS: ' + JSON.stringify(payload));
     sendMessage(payload);
@@ -56,7 +56,7 @@ function Home() {
       username,
       elo: Number(elo),
       wins: Number(wins),
-      losses: Number(losses)
+      losses: Number(losses),
     };
     logMessage('Client -> WS: ' + JSON.stringify(payload));
     setRoomId(roomIdInput);
@@ -64,67 +64,97 @@ function Home() {
   };
 
   return (
-    <div>
-      {/*<Box>*/}
-      {/*  <Typography variant="h6" gutterBottom>{username ? `Welcome, ${username}!` : 'Please log in or register'}</Typography>*/}
-      {/*</Box>*/}
+    <div style={{ fontFamily: 'Arial, sans-serif', margin: '20px' }}>
+      <h1 style={{ textAlign: 'center' }}>WebSocket & Routes Test</h1>
+      <button
+        style={{
+          backgroundColor: '#1976d2',
+          color: '#fff',
+          border: 'none',
+          padding: '8px 16px',
+          cursor: 'pointer',
+          borderRadius: '4px'
+        }}
+        onClick={() => sendTestMessage('Test')}
+      >
+        Send Test Message
+      </button>
 
-      {/* WebSocket Test */}
-      <h1>WebSocket & Routes Test</h1>
-      <button onClick={() => sendTestMessage('Test')}>Send Test Message</button>
       <hr />
 
-      {/* Room & Game Actions */}
-      <h3>Room & Game Actions</h3>
-      <form onSubmit={createRoom}>
-        <h4>Create Room</h4>
-        <label>
-          ELO:
-          <input
-            type="number"
-            value={elo}
-            onChange={(e) => setElo(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Wins:
-          <input
-            type="number"
-            value={wins}
-            onChange={(e) => setWins(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Losses:
-          <input
-            type="number"
-            value={losses}
-            onChange={(e) => setLosses(e.target.value)}
-            required
-          />
-        </label>
-        <button type="submit">Create</button>
-      </form>
+      <div style={{ display: 'flex', gap: '40px', justifyContent: 'center' }}>
+        {/* CREATE ROOM FORM (username is from user state, no ELO/Wins/Losses fields) */}
+        <form
+          onSubmit={createRoom}
+          style={{ display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
+        >
+          <h4>Create Room</h4>
+          <button
+            type="submit"
+            style={{
+              backgroundColor: '#1976d2',
+              color: '#fff',
+              border: 'none',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              borderRadius: '4px'
+            }}
+          >
+            Create
+          </button>
+        </form>
 
-      <form onSubmit={joinRoom}>
-        <h4>Join Room</h4>
-        <input
-          type="text"
-          placeholder="Room ID"
-          value={roomIdInput}
-          onChange={(e) => setRoomIdInput(e.target.value)}
-          required
-        />
-        <button type="submit">Join</button>
-      </form>
-      
+        {/* JOIN ROOM FORM */}
+        <form
+          onSubmit={joinRoom}
+          style={{ display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
+        >
+          <h4>Join Room</h4>
+          <input
+            type="text"
+            placeholder="Room ID"
+            value={roomIdInput}
+            onChange={(e) => setRoomIdInput(e.target.value)}
+            required
+            style={{ marginBottom: '8px' }}
+          />
+          <button
+            type="submit"
+            style={{
+              backgroundColor: '#1976d2',
+              color: '#fff',
+              border: 'none',
+              padding: '6px 12px',
+              cursor: 'pointer',
+              borderRadius: '4px'
+            }}
+          >
+            Join
+          </button>
+        </form>
+      </div>
+
+      {/* ROOM STATUS */}
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        {roomId ? (
+          <p>You are in room {roomId} with 1/2 capacity</p>
+        ) : (
+          <p>You are not in a room</p>
+        )}
+      </div>
+
+      {/* STATISTICS */}
+      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <h4>Statistics</h4>
+        <p>ELO: {elo}</p>
+        <p>Wins: {wins}</p>
+        <p>Losses: {losses}</p>
+      </div>
+
       <hr />
 
-      {/* Log Messages */}
       <h2>Log</h2>
-      <ul>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {messages.map((msg, i) => {
           let displayMessage = msg;
           try {
@@ -134,12 +164,10 @@ function Home() {
             } else if (parsed.status === 'game-start') {
               displayMessage = `Game Started in Room: ID ${parsed.roomId}`;
             }
-            // Add more conditions as needed
           } catch {
             // If not JSON, keep the original message
           }
-
-          return <li key={i}>{displayMessage}</li>;
+          return <li key={i} style={{ marginBottom: '4px' }}>{displayMessage}</li>;
         })}
       </ul>
     </div>
