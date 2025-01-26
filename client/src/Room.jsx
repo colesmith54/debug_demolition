@@ -39,7 +39,7 @@ const Room = () => {
 
   const handleRunCode = async () => {
     try {
-      sendMessage({ status: 'code-submission', roomId: roomId});
+      sendMessage({ status: 'code-submission', roomId: roomId, code: code });
     } catch (error) {
       console.error('Error running the code:', error);
     }

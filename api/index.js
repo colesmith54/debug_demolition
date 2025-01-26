@@ -120,9 +120,9 @@ wss.on('connection', async (ws) => {
     if (msg.status === 'join-room') {
       const roomId = msg.roomId;
       if (!rooms.has(roomId) || rooms.get(roomId).length >= 2 || (rooms.get(roomId).members[0].username === msg.username && msg.username !== '')) {
-        if(!rooms.has(roomId)) console.log("dsfjaklfda");
-        else if(rooms.get(roomId).members.length >= 2) console.log("Room full");
-        else if(rooms.get(roomId).members[0].username === msg.username && msg.username !== '') console.log("Username already taken");
+        if (!rooms.has(roomId)) console.log("Room not found");
+        else if (rooms.get(roomId).members.length >= 2) console.log("Room full");
+        else if (rooms.get(roomId).members[0].username === msg.username && msg.username !== '') console.log("Username already taken");
         ws.send(JSON.stringify({ status: 'room-not-found' }));
         return;
       }
@@ -171,6 +171,7 @@ wss.on('connection', async (ws) => {
 
     if (msg.status === 'code-submission') {
       const roomId = msg.roomId;
+      const room = rooms.get(roomId);
       const player = room ? room.members.find((p) => p.ws === ws) : null;
       
       console.log("things");
@@ -183,12 +184,12 @@ wss.on('connection', async (ws) => {
       const code = msg.code;
       const problemId = hashStringToInt(roomId);
 
-      const command = `python judge/judge.py ${problemId} ${code}`;
+      const command = `python judge.py ${problemId} "${code}"`;
 
       console.log(`Executing command: ${command}`);
 
       setTimeout(() => {
-        exec(command, async (error, stdout, stderr) => {
+        exec(command, { cwd: './judge/' }, async (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${stderr}`);
             return;
