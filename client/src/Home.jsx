@@ -106,11 +106,28 @@ function Home() {
 
 
           <form
-            onSubmit={!roomId ? joinRoom : (e) => { e.preventDefault(); leaveRoom(); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!roomId) {
+                joinRoom(e); 
+              }
+            }}
             style={{ width: '150px', alignItems: 'center', display: 'flex', flexDirection: 'column', maxWidth: '200px' }}
           >
-            <h4>{!roomId ? 'Join Room' : 'Leave Room'}</h4>
-            {!roomId ? (
+            <h4>
+              {!roomId ? 'Join Room' : (
+                <span 
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(roomId);
+                    alert('Room ID copied to clipboard!'); // Replace with better feedback if needed
+                  }}
+                >
+                  Room ID: {roomId}
+                </span>
+              )}
+            </h4>
+            {!roomId && (
               <input
                 type="text"
                 placeholder="Room ID"
@@ -119,7 +136,7 @@ function Home() {
                 required
                 style={{ marginBottom: '8px' }}
               />
-            ) : null}
+            )}
             <button
               type="submit"
               style={{
@@ -128,7 +145,7 @@ function Home() {
                 border: 'none',
                 padding: '6px 12px',
                 cursor: 'pointer',
-                borderRadius: '4px'
+                borderRadius: '4px',
               }}
             >
               {!roomId ? 'Join' : 'Leave'}
