@@ -19,9 +19,7 @@ With the rise of LLMs, Debug Demolition provides a gamified way to debug flawed 
    Add the following to your .env in /api with populated values
 
    ```bash
-    MONGODB_URI=mongodb+srv://rickyzhang196:01WnzKnwfVU2EPf5@swamphacks.5pc8v.mongodb.net/?retryWrites=true&w=majority&appName=swamphacks
-    JWT_SECRET=8eed82c589c8f21305d4ccd505c45b9ad94acccd7c1f093ca09b0f8dc3ce5def
-    DEEPSEEK_API=sk-68e5658e9a154251acc4364301f896ac
+    redacted
    ```
 
 3. **Run the Application**:
